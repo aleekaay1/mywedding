@@ -77,12 +77,10 @@ export const InvitationEnvelope: React.FC<InvitationEnvelopeProps> = ({
           </h2>
         </div>
 
-        {/* Wax Seal Button */}
         <WaxSeal
           onCrack={handleSealTap}
           isCracking={isCracking}
           accentColor={theme.accent}
-          monogram={guest.couple_names || 'A & A'}
         />
 
         {/* Tap Prompt */}

@@ -1,4 +1,9 @@
-import { Guest } from '../types';
+import { Guest, GuestSide } from '../types';
+
+const RSVP_NUMBERS: Record<GuestSide, string> = {
+  bride: '923325017233',
+  groom: '923145248496',
+};
 
 const BARAAT = {
   event_name: 'Baraat',
@@ -23,10 +28,15 @@ const WALIMA = {
   couple_names: 'Ali & Ammara',
 } as const;
 
-function rsvpUrl(honorific: string | undefined, name: string, event: string): string {
+function rsvpUrl(
+  side: GuestSide,
+  honorific: string | undefined,
+  name: string,
+  event: string,
+): string {
   const guestLabel = [honorific, name].filter(Boolean).join(' ');
   const text = `Assalamu Alaikum! ${guestLabel} confirms RSVP for the ${event}.`;
-  return `https://wa.me/923001234567?text=${encodeURIComponent(text)}`;
+  return `https://wa.me/${RSVP_NUMBERS[side]}?text=${encodeURIComponent(text)}`;
 }
 
 export const GUESTS: Guest[] = [
@@ -36,7 +46,7 @@ export const GUESTS: Guest[] = [
     honorific: 'Mr & Mrs',
     side: 'bride',
     ...BARAAT,
-    rsvp_whatsapp_url: rsvpUrl('Mr & Mrs', 'Ahmad & Family', 'Baraat'),
+    rsvp_whatsapp_url: rsvpUrl('bride', 'Mr & Mrs', 'Ahmad & Family', 'Baraat'),
     viewed: false,
     custom_message:
       'We request the honor of your presence and blessings as we celebrate this sacred union.',
@@ -47,7 +57,7 @@ export const GUESTS: Guest[] = [
     honorific: 'Mr',
     side: 'groom',
     ...WALIMA,
-    rsvp_whatsapp_url: rsvpUrl('Mr', 'Tariq Malik', 'Walima'),
+    rsvp_whatsapp_url: rsvpUrl('groom', 'Mr', 'Tariq Malik', 'Walima'),
     viewed: false,
     custom_message: 'Join us for a joyous evening of feast, gratitude, and celebration.',
   },
@@ -57,7 +67,7 @@ export const GUESTS: Guest[] = [
     honorific: 'Ms',
     side: 'bride',
     ...BARAAT,
-    rsvp_whatsapp_url: rsvpUrl('Ms', 'Zainab Khan', 'Baraat'),
+    rsvp_whatsapp_url: rsvpUrl('bride', 'Ms', 'Zainab Khan', 'Baraat'),
     viewed: false,
     custom_message: 'Your presence will add warmth and happiness to our special evening.',
   },
@@ -67,7 +77,7 @@ export const GUESTS: Guest[] = [
     honorific: 'Dr & Mrs',
     side: 'groom',
     ...WALIMA,
-    rsvp_whatsapp_url: rsvpUrl('Dr & Mrs', 'Usman Ali & Family', 'Walima'),
+    rsvp_whatsapp_url: rsvpUrl('groom', 'Dr & Mrs', 'Usman Ali & Family', 'Walima'),
     viewed: false,
     custom_message: 'We look forward to welcoming you to our Walima reception.',
   },
@@ -77,7 +87,7 @@ export const GUESTS: Guest[] = [
     honorific: 'Ms',
     side: 'bride',
     ...BARAAT,
-    rsvp_whatsapp_url: rsvpUrl('Ms', 'Fatima Syed', 'Baraat'),
+    rsvp_whatsapp_url: rsvpUrl('bride', 'Ms', 'Fatima Syed', 'Baraat'),
     viewed: false,
   },
   {
@@ -86,7 +96,7 @@ export const GUESTS: Guest[] = [
     honorific: 'Mr',
     side: 'groom',
     ...WALIMA,
-    rsvp_whatsapp_url: rsvpUrl('Mr', 'Hamza Farooq', 'Walima'),
+    rsvp_whatsapp_url: rsvpUrl('groom', 'Mr', 'Hamza Farooq', 'Walima'),
     viewed: false,
   },
 ];
