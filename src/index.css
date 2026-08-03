@@ -1,26 +1,32 @@
 @import "tailwindcss";
 
+@theme {
+  --font-script: "Allura", cursive;
+  --font-serif-display: "Cormorant Garamond", Georgia, serif;
+  --font-label: "Cinzel", "Cormorant Garamond", serif;
+}
+
 @layer base {
   body {
-    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-family: var(--font-serif-display);
     background-color: #F6EEE8;
     color: #3B2A1E;
   }
 }
 
-/* Flowing wedding script for couple names */
+/* Classic wedding-card script for couple names */
 .font-script {
-  font-family: 'Great Vibes', cursive;
+  font-family: var(--font-script);
   font-weight: 400;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
 }
 
 .font-serif-display {
-  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-family: var(--font-serif-display);
 }
 
 .font-label {
-  font-family: 'Cinzel', 'Cormorant Garamond', serif;
+  font-family: var(--font-label);
 }
 
 :root {

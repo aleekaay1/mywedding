@@ -18,8 +18,26 @@ Open [http://localhost:3000/i/ahmad-family](http://localhost:3000/i/ahmad-family
 
 Invitations are served at `/i/<guest-slug>`, for example:
 
-- `/i/ahmad-family` — Baraat (bride's side)
-- `/i/tariq-malik` — Walima (groom's side)
+- `https://hamarishaadi.vercel.app/i/ahmad-family` — Baraat (girl's side)
+- `https://hamarishaadi.vercel.app/i/tariq-malik` — Walima (boy's side)
+
+### How to create invites
+
+1. Open `src/data/guests.ts`
+2. Add a guest object (copy an existing one):
+   - `slug` — URL-safe id, e.g. `sara-khan`
+   - `full_name` / `honorific` — how they appear on the card
+   - `side` — `"bride"` (Baraat) or `"groom"` (Walima)
+3. Push to GitHub → Vercel redeploys
+4. Share this link on WhatsApp:  
+   `https://hamarishaadi.vercel.app/i/sara-khan`
+
+### WhatsApp thumbnail preview
+
+Link previews use Open Graph tags + `public/og.png`.
+
+- Preview image: replace `public/og.png` (ideally ~1200×630 or tall invitation art)
+- After changing `og.png` or meta text, WhatsApp may cache the old preview — test the link in a new chat, or use [Facebook Sharing Debugger](https://developers.facebook.com/tools/debug/) → “Scrape Again”
 
 Edit the guest list in `src/data/guests.ts`.
 

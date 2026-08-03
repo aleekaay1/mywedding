@@ -40,7 +40,10 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({ guest, onReseal 
             You are invited to the {guest.event_name.toLowerCase()} of
           </p>
 
-          <h1 className="font-script mt-2 mb-3 text-[clamp(28px,8vw,36px)] leading-none text-[#3B2A1E] whitespace-nowrap">
+          <h1
+            className="font-script mt-2 mb-3 text-[clamp(30px,8.5vw,38px)] leading-[1.15] text-[#3B2A1E] whitespace-nowrap"
+            style={{ fontFamily: '"Allura", cursive' }}
+          >
             {coupleLine}
           </h1>
 
