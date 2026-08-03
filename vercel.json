@@ -1,9 +1,11 @@
 {
   "headers": [
     {
-      "source": "/og.png",
+      "source": "/invite-preview.jpg",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=3600" }
+        { "key": "Content-Type", "value": "image/jpeg" },
+        { "key": "Cache-Control", "value": "public, max-age=86400, immutable" },
+        { "key": "Access-Control-Allow-Origin", "value": "*" }
       ]
     }
   ],
