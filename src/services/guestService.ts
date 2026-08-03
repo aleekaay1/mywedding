@@ -1,7 +1,7 @@
 import { Guest } from '../types';
 import { GUESTS } from '../data/guests';
 
-const LOCAL_STORAGE_KEY = 'wedding_invitations_guests_v1';
+const LOCAL_STORAGE_KEY = 'wedding_invitations_guests_v2';
 
 function getStoredGuests(): Guest[] {
   try {

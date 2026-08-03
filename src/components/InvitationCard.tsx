@@ -17,7 +17,8 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({
 }) => {
   const [copied, setCopied] = useState(false);
 
-  const coupleNames = guest.couple_names || (guest.side === 'bride' ? 'Zoya & Bilal' : 'Bilal & Zoya');
+  const coupleNames =
+    guest.couple_names || (guest.side === 'bride' ? 'Ammara & Ali' : 'Ali & Ammara');
 
   const handleCopyLink = () => {
     const fullUrl = window.location.href;

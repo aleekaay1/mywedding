@@ -82,7 +82,7 @@ export const InvitationEnvelope: React.FC<InvitationEnvelopeProps> = ({
           onCrack={handleSealTap}
           isCracking={isCracking}
           accentColor={theme.accent}
-          monogram={guest.couple_names || 'Z & B'}
+          monogram={guest.couple_names || 'A & A'}
         />
 
         {/* Tap Prompt */}

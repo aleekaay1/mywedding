@@ -1,52 +1,64 @@
 import { Guest } from '../types';
 
+const BARAAT = {
+  event_name: 'Baraat',
+  event_date: 'Friday, October 23, 2026',
+  event_time: '7:00 PM Onwards',
+  venue_name: 'Paramount Marquee',
+  venue_address:
+    'PSO Petrol Pump (Dhaniyal Petroleum), Main Lehtarar Road, Jhang Sayedan, Opp Eden Life Society, Islamabad',
+  maps_url:
+    'https://www.google.com/maps/search/?api=1&query=Paramount+Marquee+Main+Lehtarar+Road+Jhang+Sayedan+Islamabad',
+  couple_names: 'Ammara & Ali',
+} as const;
+
+const WALIMA = {
+  event_name: 'Walima',
+  event_date: 'Saturday, October 24, 2026',
+  event_time: '7:00 PM Onwards',
+  venue_name: 'Reet Marquee',
+  venue_address: 'Near Khana Pull, Service Road East, Street No. 2, Khanna, Islamabad',
+  maps_url:
+    'https://www.google.com/maps/search/?api=1&query=Reet+Marquee+Khanna+Pull+Islamabad',
+  couple_names: 'Ali & Ammara',
+} as const;
+
+function rsvpUrl(honorific: string | undefined, name: string, event: string): string {
+  const guestLabel = [honorific, name].filter(Boolean).join(' ');
+  const text = `Assalamu Alaikum! ${guestLabel} confirms RSVP for the ${event}.`;
+  return `https://wa.me/923001234567?text=${encodeURIComponent(text)}`;
+}
+
 export const GUESTS: Guest[] = [
   {
     slug: 'ahmad-family',
     full_name: 'Ahmad & Family',
     honorific: 'Mr & Mrs',
     side: 'bride',
-    event_name: 'Baraat',
-    event_date: 'Friday, November 14, 2026',
-    event_time: '7:30 PM Onwards',
-    venue_name: 'The Grand Marquis Pavilion',
-    venue_address: 'Main Boulevard, Phase 6, DHA, Lahore',
-    maps_url: 'https://maps.google.com/?q=The+Grand+Marquis+Pavilion+Lahore',
-    rsvp_whatsapp_url: 'https://wa.me/923001234567?text=Assalamu%20Alaikum!%20Mr%20%26%20Mrs%20Ahmad%20%26%20Family%20would%20love%20to%20attend%20the%20Baraat.',
+    ...BARAAT,
+    rsvp_whatsapp_url: rsvpUrl('Mr & Mrs', 'Ahmad & Family', 'Baraat'),
     viewed: false,
-    couple_names: 'Zoya & Bilal',
-    custom_message: 'We request the honor of your presence and blessings as we celebrate this sacred union.',
+    custom_message:
+      'We request the honor of your presence and blessings as we celebrate this sacred union.',
   },
   {
     slug: 'tariq-malik',
     full_name: 'Tariq Malik',
     honorific: 'Mr',
     side: 'groom',
-    event_name: 'Walima',
-    event_date: 'Sunday, November 16, 2026',
-    event_time: '1:00 PM Onwards',
-    venue_name: 'Royal Palm Golf & Country Club',
-    venue_address: '52 Canal Bank Road, Upper Mall, Lahore',
-    maps_url: 'https://maps.google.com/?q=Royal+Palm+Golf+Country+Club+Lahore',
-    rsvp_whatsapp_url: 'https://wa.me/923001234567?text=Assalamu%20Alaikum!%20Mr%20Tariq%20Malik%20confirms%20attendance%20for%20the%20Walima%20reception.',
+    ...WALIMA,
+    rsvp_whatsapp_url: rsvpUrl('Mr', 'Tariq Malik', 'Walima'),
     viewed: false,
-    couple_names: 'Bilal & Zoya',
-    custom_message: 'Join us for a joyous afternoon of feast, gratitude, and celebration.',
+    custom_message: 'Join us for a joyous evening of feast, gratitude, and celebration.',
   },
   {
     slug: 'zainab-khan',
     full_name: 'Zainab Khan & Guests',
     honorific: 'Ms',
     side: 'bride',
-    event_name: 'Baraat',
-    event_date: 'Friday, November 14, 2026',
-    event_time: '7:30 PM Onwards',
-    venue_name: 'The Grand Marquis Pavilion',
-    venue_address: 'Main Boulevard, Phase 6, DHA, Lahore',
-    maps_url: 'https://maps.google.com/?q=The+Grand+Marquis+Pavilion+Lahore',
-    rsvp_whatsapp_url: 'https://wa.me/923001234567?text=Assalamu%20Alaikum!%20Ms%20Zainab%20Khan%20is%20delighted%20to%20confirm%20RSVP%20for%20Baraat.',
-    viewed: true,
-    couple_names: 'Zoya & Bilal',
+    ...BARAAT,
+    rsvp_whatsapp_url: rsvpUrl('Ms', 'Zainab Khan', 'Baraat'),
+    viewed: false,
     custom_message: 'Your presence will add warmth and happiness to our special evening.',
   },
   {
@@ -54,15 +66,9 @@ export const GUESTS: Guest[] = [
     full_name: 'Dr. Usman Ali & Family',
     honorific: 'Dr & Mrs',
     side: 'groom',
-    event_name: 'Walima',
-    event_date: 'Sunday, November 16, 2026',
-    event_time: '1:00 PM Onwards',
-    venue_name: 'Royal Palm Golf & Country Club',
-    venue_address: '52 Canal Bank Road, Upper Mall, Lahore',
-    maps_url: 'https://maps.google.com/?q=Royal+Palm+Golf+Country+Club+Lahore',
-    rsvp_whatsapp_url: 'https://wa.me/923001234567?text=Assalamu%20Alaikum!%20Dr%20%26%20Mrs%20Usman%20Ali%20graciously%20accept%20the%20Walima%20invitation.',
+    ...WALIMA,
+    rsvp_whatsapp_url: rsvpUrl('Dr & Mrs', 'Usman Ali & Family', 'Walima'),
     viewed: false,
-    couple_names: 'Bilal & Zoya',
     custom_message: 'We look forward to welcoming you to our Walima reception.',
   },
   {
@@ -70,29 +76,17 @@ export const GUESTS: Guest[] = [
     full_name: 'Fatima Syed',
     honorific: 'Ms',
     side: 'bride',
-    event_name: 'Baraat',
-    event_date: 'Friday, November 14, 2026',
-    event_time: '7:30 PM Onwards',
-    venue_name: 'The Grand Marquis Pavilion',
-    venue_address: 'Main Boulevard, Phase 6, DHA, Lahore',
-    maps_url: 'https://maps.google.com/?q=The+Grand+Marquis+Pavilion+Lahore',
-    rsvp_whatsapp_url: 'https://wa.me/923001234567?text=Assalamu%20Alaikum!%20Fatima%20Syed%20confirms%20RSVP%20for%20the%20Baraat.',
+    ...BARAAT,
+    rsvp_whatsapp_url: rsvpUrl('Ms', 'Fatima Syed', 'Baraat'),
     viewed: false,
-    couple_names: 'Zoya & Bilal',
   },
   {
     slug: 'hamza-farooq',
     full_name: 'Hamza Farooq',
     honorific: 'Mr',
     side: 'groom',
-    event_name: 'Walima',
-    event_date: 'Sunday, November 16, 2026',
-    event_time: '1:00 PM Onwards',
-    venue_name: 'Royal Palm Golf & Country Club',
-    venue_address: '52 Canal Bank Road, Upper Mall, Lahore',
-    maps_url: 'https://maps.google.com/?q=Royal+Palm+Golf+Country+Club+Lahore',
-    rsvp_whatsapp_url: 'https://wa.me/923001234567?text=Assalamu%20Alaikum!%20Hamza%20Farooq%20confirms%20attendance%20for%20Walima.',
+    ...WALIMA,
+    rsvp_whatsapp_url: rsvpUrl('Mr', 'Hamza Farooq', 'Walima'),
     viewed: false,
-    couple_names: 'Bilal & Zoya',
   },
 ];

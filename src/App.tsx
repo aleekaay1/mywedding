@@ -84,7 +84,7 @@ export default function App() {
       </main>
 
       <footer className="mt-auto py-4 text-center text-[10px] text-[#241C15]/40 tracking-wider uppercase font-medium">
-        Made with affection for {guest?.couple_names || 'Zoya & Bilal'}
+        Made with affection for {guest?.couple_names || 'Ammara & Ali'}
       </footer>
     </div>
   );
