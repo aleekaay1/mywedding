@@ -14,10 +14,7 @@ export const InvitationEnvelope: React.FC<InvitationEnvelopeProps> = ({
   onOpen,
 }) => {
   const [opening, setOpening] = useState(false);
-
-  const brideFirst = guest.side === 'bride';
-  const topName = brideFirst ? 'Ammara Saleem' : 'Ali Shah';
-  const bottomName = brideFirst ? 'Ali Shah' : 'Ammara Saleem';
+  const coupleLine = guest.side === 'bride' ? 'Ammara Weds Ali' : 'Ali Weds Ammara';
 
   const handleOpen = () => {
     if (opening) return;
@@ -55,17 +52,9 @@ export const InvitationEnvelope: React.FC<InvitationEnvelopeProps> = ({
           {guest.full_name}
         </p>
 
-        <div className="mt-2 mb-2">
-          <p className="font-script text-[clamp(30px,8.5vw,42px)] leading-[0.9] text-[#5C2E3E]">
-            {topName}
-          </p>
-          <p className="font-script text-[clamp(20px,5.5vw,28px)] leading-none text-[#8B5A6A]">
-            &
-          </p>
-          <p className="font-script text-[clamp(30px,8.5vw,42px)] leading-[0.9] text-[#5C2E3E]">
-            {bottomName}
-          </p>
-        </div>
+        <h1 className="font-script mt-3 mb-3 text-[clamp(28px,8vw,38px)] leading-none text-[#5C2E3E] whitespace-nowrap">
+          {coupleLine}
+        </h1>
 
         <motion.span
           animate={{ opacity: [0.65, 1, 0.65] }}

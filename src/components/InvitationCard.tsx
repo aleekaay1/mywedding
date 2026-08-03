@@ -12,90 +12,70 @@ interface InvitationCardProps {
 
 export const InvitationCard: React.FC<InvitationCardProps> = ({ guest, onReseal }) => {
   const parts = getDateParts(guest.event_date, guest.event_time);
-  const brideFirst = guest.side === 'bride';
-  const topName = brideFirst ? 'Ammara Saleem' : 'Ali Shah';
-  const bottomName = brideFirst ? 'Ali Shah' : 'Ammara Saleem';
+  const coupleLine = guest.side === 'bride' ? 'Ammara Weds Ali' : 'Ali Weds Ammara';
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 16, scale: 0.98 }}
+      initial={{ opacity: 0, y: 14, scale: 0.985 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
       className="w-full"
     >
       <InvitationShell variant="details">
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.12 }}
-          className="flex w-full max-w-[280px] flex-col items-center"
+          transition={{ delay: 0.1 }}
+          className="flex w-full max-w-[240px] flex-col items-center px-1"
         >
-          <p className="font-serif-display text-[clamp(18px,4.8vw,24px)] leading-none text-[#3B2A1E]">
+          <p className="font-serif-display text-[18px] sm:text-[20px] leading-none text-[#3B2A1E]">
             بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ
           </p>
 
-          <p className="font-label mt-3 text-[9px] uppercase tracking-[0.28em] text-[#5C4634]">
+          <p className="font-label mt-2.5 text-[8px] uppercase tracking-[0.26em] text-[#5C4634]">
             With Allah&apos;s Blessings
           </p>
 
-          <p className="font-serif-display mt-2 max-w-[250px] text-[12px] sm:text-[13px] leading-relaxed text-[#5C4634]">
-            Together with our families we request the honour of your presence at the{' '}
-            <span className="font-semibold lowercase">{guest.event_name}</span> of
+          <p className="font-serif-display mt-2 text-[12px] leading-snug text-[#5C4634]">
+            You are invited to the {guest.event_name.toLowerCase()} of
           </p>
 
-          {/* Couple names — large flowing script */}
-          <div className="my-3 w-full">
-            <h1 className="font-script text-[clamp(40px,11vw,54px)] leading-[0.95] text-[#3B2A1E]">
-              {topName}
-            </h1>
-            <p className="font-script my-0.5 text-[clamp(26px,7vw,34px)] leading-none text-[#7A5A3A]">
-              &
-            </p>
-            <h1 className="font-script text-[clamp(40px,11vw,54px)] leading-[0.95] text-[#3B2A1E]">
-              {bottomName}
-            </h1>
-          </div>
+          <h1 className="font-script mt-2 mb-3 text-[clamp(28px,8vw,36px)] leading-none text-[#3B2A1E] whitespace-nowrap">
+            {coupleLine}
+          </h1>
 
-          {/* Date bar */}
-          <div className="mb-3 flex w-full max-w-[270px] overflow-hidden rounded-sm text-white shadow-sm">
-            <div className="flex w-[27%] items-center justify-center bg-[#3B2A1E] px-1 py-2.5 text-[8px] font-label font-semibold uppercase tracking-wider">
-              {parts.day}
-            </div>
-            <div className="flex flex-1 items-center justify-center bg-[#6B3A4A] px-2 py-2.5 text-[9px] font-label font-semibold uppercase tracking-[0.12em]">
-              {parts.dateLine}
-            </div>
-            <div className="flex w-[28%] items-center justify-center bg-[#3B2A1E] px-1 py-2.5 text-[8px] font-label font-semibold uppercase tracking-wider">
-              {parts.time}
-            </div>
-          </div>
+          {/* Simple date / time — no heavy bar */}
+          <p className="font-serif-display text-[15px] font-semibold text-[#3B2A1E]">
+            {parts.day.charAt(0) + parts.day.slice(1).toLowerCase()}, {parts.month.charAt(0)}
+            {parts.month.slice(1).toLowerCase()} {parts.dateNum}
+          </p>
+          <p className="font-serif-display mt-0.5 text-[13px] text-[#5C4634]">
+            {parts.time.replace(/^AT\s+/i, '')} · {parts.year}
+          </p>
 
-          <p className="font-label text-[10px] font-medium uppercase tracking-[0.2em] text-[#3B2A1E]">
+          <div className="my-3 h-px w-12 bg-[#3B2A1E]/25" />
+
+          <p className="font-label text-[9px] uppercase tracking-[0.18em] text-[#3B2A1E]">
             {guest.venue_name}
           </p>
-          <p className="font-serif-display mt-1 max-w-[250px] text-[11px] leading-snug text-[#5C4634]">
+          <p className="font-serif-display mt-1 max-w-[220px] text-[11px] leading-snug text-[#5C4634] line-clamp-2">
             {guest.venue_address}
           </p>
 
           <p className="font-serif-display mt-3 text-[12px] text-[#3B2A1E]">
-            Prepared for{' '}
+            For{' '}
             <span className="italic font-semibold">
               {guest.honorific ? `${guest.honorific} ` : ''}
               {guest.full_name}
             </span>
           </p>
 
-          {guest.custom_message && (
-            <p className="font-serif-display mt-2 max-w-[240px] text-[11px] italic leading-relaxed text-[#5C4634]">
-              {guest.custom_message}
-            </p>
-          )}
-
-          <div className="mt-4 flex w-full max-w-[240px] flex-col items-stretch gap-2">
+          <div className="mt-3.5 flex w-full max-w-[200px] flex-col items-center gap-2">
             <a
               href={guest.rsvp_whatsapp_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex h-9 items-center justify-center rounded-full bg-[#6B3A4A] px-4 text-[10px] font-label font-medium uppercase tracking-[0.14em] text-white leading-none shadow-sm"
+              className="inline-flex h-8 w-full items-center justify-center rounded-full bg-[#6B3A4A] text-[9px] font-label font-medium uppercase tracking-[0.14em] text-white leading-none"
             >
               RSVP on WhatsApp
             </a>
@@ -113,7 +93,7 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({ guest, onReseal 
             <button
               type="button"
               onClick={onReseal}
-              className="font-label mt-2 text-[8px] uppercase tracking-[0.2em] text-[#8A7060]"
+              className="font-label mt-2 text-[7px] uppercase tracking-[0.2em] text-[#8A7060]"
             >
               Close
             </button>

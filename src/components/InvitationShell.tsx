@@ -23,10 +23,10 @@ export const InvitationShell: React.FC<InvitationShellProps> = ({
   const sharedClassName = `relative w-full max-w-[400px] mx-auto overflow-hidden shadow-[0_20px_50px_-20px_rgba(60,40,50,0.45)] ${className}`;
   const imageSrc = variant === 'details' ? '/secondpage.png' : '/background.png';
 
-  // Scalloped beige panel on secondpage — generous centered text area
+  // Keep text inside the scalloped panel (inset more so florals don't clip)
   const slotClass =
     variant === 'details'
-      ? 'absolute inset-x-[16%] top-[14%] bottom-[14%] z-10 flex flex-col items-center justify-center text-center px-2'
+      ? 'absolute inset-x-[18%] top-[16%] bottom-[16%] z-10 flex flex-col items-center justify-center text-center px-2'
       : 'absolute inset-x-[12%] top-[20%] bottom-[34%] z-10 flex flex-col items-center justify-center text-center px-1';
 
   const content = (
