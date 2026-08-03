@@ -14,7 +14,7 @@ const BARAAT = {
     'PSO Petrol Pump (Dhaniyal Petroleum), Main Lehtarar Road, Jhang Sayedan, Opp Eden Life Society, Islamabad',
   maps_url:
     'https://www.google.com/maps/search/?api=1&query=Paramount+Marquee+Main+Lehtarar+Road+Jhang+Sayedan+Islamabad',
-  couple_names: 'Ammara & Ali',
+  couple_names: 'Ammara Saleem & Ali Shah',
 } as const;
 
 const WALIMA = {
@@ -25,7 +25,7 @@ const WALIMA = {
   venue_address: 'Near Khana Pull, Service Road East, Street No. 2, Khanna, Islamabad',
   maps_url:
     'https://www.google.com/maps/search/?api=1&query=Reet+Marquee+Khanna+Pull+Islamabad',
-  couple_names: 'Ali & Ammara',
+  couple_names: 'Ali Shah & Ammara Saleem',
 } as const;
 
 function rsvpUrl(

@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { Guest, ThemeColors } from '../types';
-import { WaxSeal } from './WaxSeal';
-import { JaaliBackground } from './JaaliBackground';
-import { Sparkles } from 'lucide-react';
+import { FloralCorners } from './FloralCorners';
+import { CoupleIllustration } from './CoupleIllustration';
 
 interface InvitationEnvelopeProps {
   guest: Guest;
@@ -16,92 +15,88 @@ export const InvitationEnvelope: React.FC<InvitationEnvelopeProps> = ({
   theme,
   onOpen,
 }) => {
-  const [isCracking, setIsCracking] = useState(false);
+  const [opening, setOpening] = useState(false);
 
-  const handleSealTap = () => {
-    if (isCracking) return;
-    setIsCracking(true);
-    // Short delay for crack animation before revealing card
-    setTimeout(() => {
-      onOpen();
-    }, 550);
+  const brideFirst = guest.side === 'bride';
+  const topName = brideFirst ? 'Ammara Saleem' : 'Ali Shah';
+  const bottomName = brideFirst ? 'Ali Shah' : 'Ammara Saleem';
+
+  const handleOpen = () => {
+    if (opening) return;
+    setOpening(true);
+    setTimeout(onOpen, 420);
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 15 }}
-      animate={{ opacity: 1, y: 0 }}
+    <motion.button
+      type="button"
+      onClick={handleOpen}
+      initial={{ opacity: 0, y: 18 }}
+      animate={{ opacity: opening ? 0 : 1, y: opening ? -8 : 0, scale: opening ? 0.97 : 1 }}
       exit={{ opacity: 0, scale: 0.96 }}
-      transition={{ duration: 0.5 }}
-      className="relative w-full max-w-[420px] mx-auto min-h-[540px] rounded-2xl shadow-2xl p-6 sm:p-8 flex flex-col justify-between items-center text-center overflow-hidden border border-[#B08D3F]/40"
-      style={{
-        backgroundColor: '#F5EFE2',
-        backgroundImage: 'radial-gradient(ellipse at top, #FAF6EE 0%, #F0E8D7 100%)',
-      }}
+      transition={{ duration: 0.45 }}
+      className="relative w-full max-w-[400px] mx-auto text-center cursor-pointer focus:outline-none focus-visible:ring-4 focus-visible:ring-[#C4A35A]/40 rounded-[28px]"
+      aria-label="Open wedding invitation"
     >
-      {/* Subtle Islamic Jaali pattern at near-zero opacity (~4%) in closed state */}
-      <JaaliBackground opacity={0.04} color={theme.gold} />
+      <div
+        className="relative overflow-hidden rounded-[28px] px-5 pt-8 pb-5 shadow-[0_22px_50px_-18px_rgba(59,42,30,0.35)]"
+        style={{
+          background:
+            'linear-gradient(180deg, #FBF7F0 0%, #F3EADF 45%, #EADDC8 100%)',
+        }}
+      >
+        <FloralCorners />
 
-      {/* Gold Foil Envelope Frame Border */}
-      <div className="absolute inset-3 rounded-xl border border-[#B08D3F]/40 pointer-events-none flex flex-col justify-between p-1">
-        <div className="w-full h-full border border-[#B08D3F]/20 rounded-lg" />
-      </div>
+        {/* Soft scalloped center panel */}
+        <div
+          className="relative z-10 mx-auto mt-6 mb-2 w-[88%] rounded-[40px] px-4 py-7"
+          style={{
+            background: 'linear-gradient(180deg, #E8D7BC 0%, #DFC9A8 100%)',
+            boxShadow: 'inset 0 0 0 1px rgba(90,64,40,0.12)',
+          }}
+        >
+          <p className="font-serif-display text-[22px] leading-none text-[#3B2A1E] mb-3">
+            بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ
+          </p>
 
-      {/* Top Header & Bismillah / Monogram */}
-      <div className="relative z-10 pt-4 flex flex-col items-center">
-        <div className="w-10 h-10 rounded-full border border-[#B08D3F]/40 flex items-center justify-center mb-3 bg-[#FAF6EE]/80 shadow-sm">
-          <Sparkles className="w-4 h-4 text-[#B08D3F]" />
-        </div>
-        
-        {/* Arabic Bismillah / Ornamental Header */}
-        <p className="font-serif-display text-xl sm:text-2xl text-[#7A2331] font-semibold tracking-wide drop-shadow-xs">
-          بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ
-        </p>
-        <p className="text-[10px] uppercase tracking-[0.25em] text-[#241C15]/60 mt-1 font-medium">
-          Wedding Invitation
-        </p>
-      </div>
+          <p className="text-[10px] uppercase tracking-[0.22em] text-[#5C4634]/80 mb-1">
+            With Allah&apos;s blessings
+          </p>
+          <p className="text-[12px] text-[#5C4634] leading-relaxed max-w-[240px] mx-auto mb-4">
+            A personal invitation for
+          </p>
 
-      {/* Middle Center Envelope Body with Recipient Name & Wax Seal */}
-      <div className="relative z-10 my-6 w-full flex flex-col items-center justify-center">
-        {/* Envelope Top Flap Graphic Lines */}
-        <div className="w-full max-w-[280px] h-[1px] bg-gradient-to-r from-transparent via-[#B08D3F]/60 to-transparent mb-6" />
-
-        <div className="mb-6 px-4 py-3 rounded-lg bg-[#F5EFE2]/60 border border-[#B08D3F]/20 backdrop-blur-xs max-w-[320px]">
-          <span className="block text-[10px] uppercase tracking-[0.2em] text-[#B08D3F] font-bold mb-1">
-            Specially Prepared For
-          </span>
-          <h2 className="font-serif-display text-2xl sm:text-3xl text-[#241C15] font-bold leading-tight">
+          <p className="font-serif-display text-xl text-[#3B2A1E] font-semibold mb-5">
             {guest.honorific ? `${guest.honorific} ` : ''}
             {guest.full_name}
-          </h2>
+          </p>
+
+          <div className="mb-5">
+            <p className="font-script text-[42px] leading-[0.95] text-[#3B2A1E]">{topName}</p>
+            <p className="font-script text-[28px] leading-none text-[#7A5A3A] my-1">&</p>
+            <p className="font-script text-[42px] leading-[0.95] text-[#3B2A1E]">{bottomName}</p>
+          </div>
+
+          <p
+            className="text-[11px] uppercase tracking-[0.18em] font-semibold mb-1"
+            style={{ color: theme.accent }}
+          >
+            {guest.event_name}
+          </p>
+          <p className="text-[12px] text-[#5C4634] mb-5">{guest.event_date}</p>
+
+          <motion.span
+            animate={{ opacity: [0.7, 1, 0.7] }}
+            transition={{ duration: 2, repeat: Infinity }}
+            className="inline-flex items-center justify-center px-5 py-2.5 rounded-full text-[11px] uppercase tracking-[0.2em] font-semibold text-white"
+            style={{ backgroundColor: theme.accent }}
+          >
+            {opening ? 'Opening…' : 'Tap to open'}
+          </motion.span>
         </div>
 
-        <WaxSeal
-          onCrack={handleSealTap}
-          isCracking={isCracking}
-          accentColor={theme.accent}
-        />
-
-        {/* Tap Prompt */}
-        <motion.p
-          animate={{ opacity: isCracking ? 0 : [0.7, 1, 0.7] }}
-          transition={{ duration: 2, repeat: Infinity }}
-          className="text-xs font-medium tracking-wider text-[#241C15]/80 uppercase mt-5"
-        >
-          {isCracking ? 'Opening Invitation...' : 'Tap the seal to open your invitation'}
-        </motion.p>
+        <CoupleIllustration side={guest.side} className="relative z-10 mx-auto mt-1 w-[220px]" />
       </div>
-
-      {/* Bottom Footer Details */}
-      <div className="relative z-10 pb-2">
-        <div className="flex items-center gap-2 justify-center text-[11px] text-[#241C15]/70">
-          <span className="w-2 h-2 rounded-full" style={{ backgroundColor: theme.accent }} />
-          <span className="font-medium tracking-wide">
-            {guest.event_name} · {guest.side === 'bride' ? "Girl's Side" : "Boy's Side"}
-          </span>
-        </div>
-      </div>
-    </motion.div>
+    </motion.button>
   );
 };

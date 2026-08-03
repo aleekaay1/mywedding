@@ -39,9 +39,9 @@ export default function App() {
       accentBg: isBride ? '#7A233112' : '#1F4B3F12',
       accentBorder: isBride ? '#7A233140' : '#1F4B3F40',
       label: isBride ? "Baraat · Girl's side" : "Walima · Boy's side",
-      gold: '#B08D3F',
-      parchment: '#F5EFE2',
-      ink: '#241C15',
+      gold: '#C4A35A',
+      parchment: '#F7F2EA',
+      ink: '#3B2A1E',
     };
   }, [guest?.side]);
 
@@ -51,12 +51,18 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5EFE2] text-[#241C15] flex flex-col items-center justify-center p-4 sm:p-6 relative overflow-x-hidden">
-      <main className="w-full max-w-[420px] mx-auto my-auto py-4 relative z-10 flex items-center justify-center min-h-[580px]">
+    <div
+      className="min-h-screen flex flex-col items-center justify-center p-3 sm:p-6 relative overflow-x-hidden"
+      style={{
+        background:
+          'radial-gradient(ellipse at top, #FFFDF8 0%, #F7F2EA 45%, #EFE6D8 100%)',
+      }}
+    >
+      <main className="w-full max-w-[420px] mx-auto my-auto py-4 relative z-10 flex items-center justify-center min-h-[620px]">
         {loading ? (
-          <div className="flex flex-col items-center justify-center p-12 text-[#B08D3F]">
+          <div className="flex flex-col items-center justify-center p-12 text-[#C4A35A]">
             <Loader2 className="w-8 h-8 animate-spin mb-3" />
-            <p className="text-xs uppercase tracking-widest font-semibold">
+            <p className="text-xs uppercase tracking-widest font-semibold text-[#5C4634]">
               Preparing Your Invitation...
             </p>
           </div>
@@ -83,8 +89,8 @@ export default function App() {
         )}
       </main>
 
-      <footer className="mt-auto py-4 text-center text-[10px] text-[#241C15]/40 tracking-wider uppercase font-medium">
-        Made with affection for {guest?.couple_names || 'Ammara & Ali'}
+      <footer className="mt-auto py-4 text-center text-[10px] text-[#3B2A1E]/35 tracking-wider uppercase font-medium">
+        Ali Shah & Ammara Saleem
       </footer>
     </div>
   );

@@ -2,9 +2,9 @@
 
 @layer base {
   body {
-    font-family: 'Jost', sans-serif;
-    background-color: #F5EFE2;
-    color: #241C15;
+    font-family: 'Outfit', sans-serif;
+    background-color: #F7F2EA;
+    color: #3B2A1E;
   }
 }
 
@@ -12,21 +12,24 @@
   font-family: 'Cormorant Garamond', Georgia, serif;
 }
 
+.font-script {
+  font-family: 'Great Vibes', cursive;
+}
+
 .font-sans-body {
-  font-family: 'Jost', sans-serif;
+  font-family: 'Outfit', sans-serif;
 }
 
-/* Base palette CSS variables */
 :root {
-  --bg-parchment: #F5EFE2;
-  --text-ink: #241C15;
-  --accent-gold: #B08D3F;
-  --accent-gold-light: #D4AF37;
-  --accent-bride: #7A2331; /* Deep Maroon / Rose */
-  --accent-groom: #1F4B3F; /* Deep Emerald */
+  --bg-cream: #F7F2EA;
+  --bg-tan: #E8D7BC;
+  --text-ink: #3B2A1E;
+  --text-muted: #5C4634;
+  --accent-gold: #C4A35A;
+  --accent-bride: #7A2331;
+  --accent-groom: #1F4B3F;
 }
 
-/* Custom scrollbar styling for compact view */
 ::-webkit-scrollbar {
   width: 5px;
   height: 5px;
@@ -35,9 +38,6 @@
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #B08D3F50;
+  background: #C4A35A80;
   border-radius: 9999px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #B08D3F;
 }
