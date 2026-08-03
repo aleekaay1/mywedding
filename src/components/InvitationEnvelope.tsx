@@ -53,8 +53,8 @@ export const InvitationEnvelope: React.FC<InvitationEnvelopeProps> = ({
         </p>
 
         <h1
-          className="font-script mt-3 mb-3 text-[clamp(30px,8.5vw,40px)] leading-[1.15] text-[#5C2E3E] whitespace-nowrap"
-          style={{ fontFamily: '"Allura", cursive' }}
+          className="font-script mt-3 mb-3 text-[clamp(32px,9vw,44px)] leading-[1.2] text-[#5C2E3E] whitespace-nowrap"
+          style={{ fontFamily: '"Great Vibes", cursive' }}
         >
           {coupleLine}
         </h1>

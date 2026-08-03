@@ -41,8 +41,8 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({ guest, onReseal 
           </p>
 
           <h1
-            className="font-script mt-2 mb-3 text-[clamp(30px,8.5vw,38px)] leading-[1.15] text-[#3B2A1E] whitespace-nowrap"
-            style={{ fontFamily: '"Allura", cursive' }}
+            className="font-script mt-2 mb-3 text-[clamp(32px,9vw,42px)] leading-[1.2] text-[#3B2A1E] whitespace-nowrap"
+            style={{ fontFamily: '"Great Vibes", cursive' }}
           >
             {coupleLine}
           </h1>
