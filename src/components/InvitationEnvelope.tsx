@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { Guest, ThemeColors } from '../types';
 import { InvitationShell } from './InvitationShell';
+import { OrnamentDivider } from './OrnamentDivider';
 
 interface InvitationEnvelopeProps {
   guest: Guest;
@@ -44,17 +45,22 @@ export const InvitationEnvelope: React.FC<InvitationEnvelopeProps> = ({
           With Allah&apos;s Blessings
         </p>
 
-        <p className="font-serif-display mt-2 text-[12px] italic text-[#6B4A55]">
+        <p className="font-serif-display mt-2 text-[11px] italic text-[#6B4A55]">
           A personal invitation for
         </p>
-        <p className="font-serif-display text-[clamp(16px,4.2vw,20px)] font-semibold leading-tight text-[#3D2430]">
+        <p className="font-serif-display text-[clamp(15px,4vw,18px)] font-semibold leading-tight text-[#3D2430]">
           {guest.honorific ? `${guest.honorific} ` : ''}
           {guest.full_name}
         </p>
 
+        <OrnamentDivider className="my-3" />
+
+        <p className="font-label mb-1 text-[7px] uppercase tracking-[0.28em] text-[#8B6A72]">
+          The wedding of
+        </p>
         <h1
-          className="font-script mt-3 mb-3 text-[clamp(32px,9vw,44px)] leading-[1.2] text-[#5C2E3E] whitespace-nowrap"
-          style={{ fontFamily: '"Great Vibes", cursive' }}
+          className="font-script mb-3 text-[clamp(32px,9vw,44px)] leading-[1.2] text-[#5C2E3E] whitespace-nowrap"
+          style={{ fontFamily: '"Alex Brush", cursive' }}
         >
           {coupleLine}
         </h1>

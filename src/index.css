@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  --font-script: "Great Vibes", cursive;
+  --font-script: "Alex Brush", cursive;
   --font-serif-display: "Cormorant Garamond", Georgia, serif;
   --font-label: "Cinzel", "Cormorant Garamond", serif;
 }
@@ -14,9 +14,9 @@
   }
 }
 
-/* Wedding script — same family as Canva "Great Vibes" */
+/* Wedding script — Alex Brush */
 .font-script {
-  font-family: "Great Vibes", cursive !important;
+  font-family: "Alex Brush", cursive !important;
   font-weight: 400;
   letter-spacing: 0.02em;
 }

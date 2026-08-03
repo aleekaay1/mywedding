@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import { Guest, ThemeColors } from '../types';
 import { InvitationShell } from './InvitationShell';
 import { getDateParts } from '../utils/dateParts';
+import { OrnamentDivider } from './OrnamentDivider';
 
 interface InvitationCardProps {
   guest: Guest;
@@ -41,11 +42,13 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({ guest, onReseal 
           </p>
 
           <h1
-            className="font-script mt-2 mb-3 text-[clamp(32px,9vw,42px)] leading-[1.2] text-[#3B2A1E] whitespace-nowrap"
-            style={{ fontFamily: '"Great Vibes", cursive' }}
+            className="font-script mt-2 mb-2 text-[clamp(32px,9vw,42px)] leading-[1.2] text-[#3B2A1E] whitespace-nowrap"
+            style={{ fontFamily: '"Alex Brush", cursive' }}
           >
             {coupleLine}
           </h1>
+
+          <OrnamentDivider className="mb-2.5" />
 
           {/* Simple date / time — no heavy bar */}
           <p className="font-serif-display text-[15px] font-semibold text-[#3B2A1E]">
@@ -56,21 +59,21 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({ guest, onReseal 
             {parts.time.replace(/^AT\s+/i, '')} · {parts.year}
           </p>
 
-          <div className="my-3 h-px w-12 bg-[#3B2A1E]/25" />
-
-          <p className="font-label text-[9px] uppercase tracking-[0.18em] text-[#3B2A1E]">
+          <p className="font-label mt-3 text-[9px] uppercase tracking-[0.18em] text-[#3B2A1E]">
             {guest.venue_name}
           </p>
           <p className="font-serif-display mt-1 max-w-[220px] text-[11px] leading-snug text-[#5C4634] line-clamp-2">
             {guest.venue_address}
           </p>
 
-          <p className="font-serif-display mt-3 text-[12px] text-[#3B2A1E]">
-            For{' '}
-            <span className="italic font-semibold">
-              {guest.honorific ? `${guest.honorific} ` : ''}
-              {guest.full_name}
-            </span>
+          <OrnamentDivider className="mt-3 mb-2" />
+
+          <p className="font-serif-display text-[11px] italic text-[#5C4634]">
+            Prepared for
+          </p>
+          <p className="font-serif-display text-[13px] font-semibold text-[#3B2A1E]">
+            {guest.honorific ? `${guest.honorific} ` : ''}
+            {guest.full_name}
           </p>
 
           <div className="mt-3.5 flex w-full max-w-[200px] flex-col items-center gap-2">
@@ -86,9 +89,9 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({ guest, onReseal 
               href={guest.maps_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="font-serif-display text-[12px] italic text-[#6B3A4A] underline-offset-2 hover:underline"
+              className="inline-flex h-8 w-full items-center justify-center gap-1.5 rounded-full border-2 border-[#6B3A4A] bg-[#FBF7F0]/90 text-[9px] font-label font-medium uppercase tracking-[0.14em] text-[#6B3A4A] leading-none"
             >
-              Get directions
+              Get Directions
             </a>
           </div>
 
