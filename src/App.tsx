@@ -51,17 +51,12 @@ export default function App() {
   };
 
   return (
-    <div
-      className="min-h-screen flex flex-col items-center justify-center p-3 sm:p-5 relative overflow-x-hidden"
-      style={{
-        background: 'radial-gradient(ellipse at top, #FFF9F6 0%, #F6EEE8 50%, #EDE0DC 100%)',
-      }}
-    >
-      <main className="w-full max-w-[420px] mx-auto my-auto py-3 relative z-10 flex items-center justify-center">
+    <div className="min-h-[100dvh] h-[100dvh] w-full overflow-hidden bg-[#F6EEE8] sm:min-h-screen sm:h-auto sm:overflow-x-hidden sm:flex sm:flex-col sm:items-center sm:justify-center sm:p-5">
+      <main className="relative z-10 h-full w-full sm:h-auto sm:max-w-[420px] sm:py-4">
         {loading ? (
-          <div className="flex flex-col items-center justify-center p-12 text-[#8B5A6A]">
-            <Loader2 className="w-8 h-8 animate-spin mb-3" />
-            <p className="text-xs uppercase tracking-widest font-semibold text-[#6B4A55]">
+          <div className="flex h-full min-h-[100dvh] flex-col items-center justify-center p-12 text-[#8B5A6A] sm:min-h-0">
+            <Loader2 className="mb-3 h-8 w-8 animate-spin" />
+            <p className="text-xs font-semibold uppercase tracking-widest text-[#6B4A55]">
               Preparing Your Invitation...
             </p>
           </div>
@@ -88,7 +83,7 @@ export default function App() {
         )}
       </main>
 
-      <footer className="mt-auto py-3 text-center text-[10px] text-[#3D2430]/35 tracking-wider uppercase font-medium">
+      <footer className="hidden py-3 text-center text-[10px] font-medium uppercase tracking-wider text-[#3D2430]/35 sm:block">
         Ali Shah & Ammara Saleem
       </footer>
     </div>

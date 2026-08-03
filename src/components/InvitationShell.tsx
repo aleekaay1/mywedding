@@ -7,7 +7,6 @@ interface InvitationShellProps {
   onClick?: () => void;
   disabled?: boolean;
   ariaLabel?: string;
-  /** teaser = sealed cover (background.png); details = opened invite (secondpage.png) */
   variant?: 'teaser' | 'details';
 }
 
@@ -20,22 +19,30 @@ export const InvitationShell: React.FC<InvitationShellProps> = ({
   ariaLabel,
   variant = 'teaser',
 }) => {
-  const sharedClassName = `relative w-full max-w-[400px] mx-auto overflow-hidden shadow-[0_20px_50px_-20px_rgba(60,40,50,0.45)] ${className}`;
   const imageSrc = variant === 'details' ? '/secondpage.png' : '/background.png';
 
-  // Keep text inside the scalloped panel (inset more so florals don't clip)
+  const sharedClassName = [
+    'relative w-full overflow-hidden bg-[#F6EEE8]',
+    // Mobile: true full-screen
+    'h-[100dvh] max-h-[100dvh]',
+    // Desktop: natural invitation card
+    'sm:h-auto sm:max-h-none sm:max-w-[420px] sm:mx-auto',
+    'sm:shadow-[0_20px_50px_-20px_rgba(60,40,50,0.45)]',
+    className,
+  ].join(' ');
+
   const slotClass =
     variant === 'details'
-      ? 'absolute inset-x-[18%] top-[16%] bottom-[16%] z-10 flex flex-col items-center justify-center text-center px-2'
-      : 'absolute inset-x-[12%] top-[20%] bottom-[34%] z-10 flex flex-col items-center justify-center text-center px-1';
+      ? 'absolute z-10 inset-x-[14%] top-[12%] bottom-[11%] flex flex-col items-center justify-center text-center overflow-y-auto overscroll-contain px-1 py-1 sm:inset-x-[18%] sm:top-[15%] sm:bottom-[14%]'
+      : 'absolute z-10 inset-x-[12%] top-[18%] bottom-[30%] flex flex-col items-center justify-center text-center overflow-y-auto overscroll-contain px-1 py-1 sm:top-[20%] sm:bottom-[32%]';
 
   const content = (
     <>
       <img
         src={imageSrc}
         alt=""
-        className="block w-full h-auto select-none"
         draggable={false}
+        className="pointer-events-none select-none absolute inset-0 h-full w-full object-cover object-center sm:static sm:h-auto sm:w-full sm:object-contain"
       />
       <div className={slotClass}>{children}</div>
     </>
@@ -48,7 +55,7 @@ export const InvitationShell: React.FC<InvitationShellProps> = ({
         onClick={onClick}
         disabled={disabled}
         aria-label={ariaLabel}
-        className={`${sharedClassName} cursor-pointer p-0 border-0 bg-transparent focus:outline-none focus-visible:ring-4 focus-visible:ring-[#8B4D5C]/35`}
+        className={`${sharedClassName} cursor-pointer border-0 p-0 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#8B4D5C]/35`}
       >
         {content}
       </button>
