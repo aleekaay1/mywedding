@@ -3,7 +3,6 @@ import { motion } from 'motion/react';
 import { Guest, ThemeColors } from '../types';
 import { InvitationShell } from './InvitationShell';
 import { getDateParts } from '../utils/dateParts';
-import { MapPin } from 'lucide-react';
 
 interface InvitationCardProps {
   guest: Guest;
@@ -19,78 +18,76 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({ guest, onReseal 
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 18, scale: 0.98 }}
+      initial={{ opacity: 0, y: 14, scale: 0.985 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
       className="w-full"
     >
-      <InvitationShell>
+      <InvitationShell variant="details">
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.12 }}
-          className="flex h-full w-full flex-col items-center justify-center"
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="flex w-full flex-col items-center"
         >
-          <p className="font-serif-display text-[clamp(15px,4.2vw,20px)] leading-none text-[#4A2F38] mb-1">
+          <p className="font-serif-display text-[clamp(14px,3.8vw,18px)] leading-none text-[#4A2F38]">
             بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ
           </p>
 
-          <p className="text-[8px] uppercase tracking-[0.2em] text-[#6B4A55] mb-1">
-            With Allah&apos;s blessings
+          <p className="font-label mt-1.5 text-[8px] uppercase tracking-[0.28em] text-[#6B4A55]">
+            With Allah&apos;s Blessings
           </p>
 
-          <p className="text-[10px] sm:text-[11px] text-[#6B4A55] leading-snug max-w-[240px] mb-1">
-            Together with our families we invite you to the{' '}
-            <span className="font-semibold text-[#5C2E3E]">{guest.event_name}</span> of
+          <p className="font-serif-display mt-1 max-w-[230px] text-[11px] italic leading-snug text-[#6B4A55]">
+            Together with our families, we invite you to the {guest.event_name.toLowerCase()} of
           </p>
 
-          <div className="my-1.5">
-            <h1 className="font-script text-[clamp(30px,8.5vw,42px)] leading-[0.92] text-[#5C2E3E]">
+          <div className="mt-1 mb-0.5">
+            <h1 className="font-script text-[clamp(32px,9vw,44px)] leading-[0.9] text-[#5C2E3E]">
               {topName}
             </h1>
-            <p className="font-script text-[clamp(18px,5vw,24px)] leading-none text-[#8B5A6A]">&</p>
-            <h1 className="font-script text-[clamp(30px,8.5vw,42px)] leading-[0.92] text-[#5C2E3E]">
+            <p className="font-script text-[clamp(20px,5.5vw,28px)] leading-none text-[#8B5A6A]">
+              &
+            </p>
+            <h1 className="font-script text-[clamp(32px,9vw,44px)] leading-[0.9] text-[#5C2E3E]">
               {bottomName}
             </h1>
           </div>
 
-          {/* Compact date row matching the artwork palette */}
-          <div className="mb-1.5 flex w-full max-w-[250px] items-center justify-center gap-2 text-[#4A2F38]">
-            <span className="text-[9px] uppercase tracking-wider font-medium">{parts.day}</span>
-            <span className="text-[#C4A0A8]">|</span>
-            <span className="font-serif-display text-[15px] sm:text-[17px] font-semibold leading-none">
+          <div className="mt-1 flex items-baseline justify-center gap-2 text-[#4A2F38]">
+            <span className="font-label text-[8px] uppercase tracking-[0.18em]">{parts.day}</span>
+            <span className="text-[#C4A0A8] text-[10px]">·</span>
+            <span className="font-serif-display text-[20px] font-semibold leading-none">
               {parts.dateNum}
             </span>
-            <span className="text-[#C4A0A8]">|</span>
-            <span className="text-[9px] uppercase tracking-wider font-medium">
+            <span className="text-[#C4A0A8] text-[10px]">·</span>
+            <span className="font-label text-[8px] uppercase tracking-[0.18em]">
               {parts.time.replace(/^AT\s+/i, '')}
             </span>
           </div>
-          <p className="text-[9px] uppercase tracking-[0.16em] text-[#6B4A55] mb-1.5">
+
+          <p className="font-label mt-0.5 text-[8px] uppercase tracking-[0.22em] text-[#6B4A55]">
             {parts.month} {parts.year}
           </p>
 
-          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#3D2430]">
+          <p className="font-label mt-1.5 text-[9px] font-medium uppercase tracking-[0.2em] text-[#3D2430]">
             {guest.venue_name}
           </p>
-          <p className="mt-0.5 text-[9px] leading-snug text-[#6B4A55] max-w-[230px] line-clamp-2">
-            {guest.venue_address}
-          </p>
 
-          <p className="mt-1.5 text-[9px] text-[#4A2F38]">
+          <p className="font-serif-display mt-1 text-[11px] text-[#4A2F38]">
             For{' '}
-            <span className="font-semibold">
+            <span className="italic font-semibold">
               {guest.honorific ? `${guest.honorific} ` : ''}
               {guest.full_name}
             </span>
           </p>
 
-          <div className="mt-2 flex w-full max-w-[240px] flex-col gap-1.5">
+          <div className="mt-2 flex w-full max-w-[220px] flex-col items-stretch gap-1.5">
             <a
               href={guest.rsvp_whatsapp_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-full bg-[#6B3A4A] py-2 text-[11px] font-semibold tracking-wide text-white shadow-sm active:scale-[0.98] transition-transform"
+              className="inline-flex h-8 items-center justify-center rounded-full bg-[#6B3A4A] px-4 text-[10px] font-label font-medium uppercase tracking-[0.14em] text-white leading-none"
             >
               RSVP on WhatsApp
             </a>
@@ -98,10 +95,9 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({ guest, onReseal 
               href={guest.maps_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-1 rounded-full border border-[#6B3A4A]/30 bg-white/70 py-1.5 text-[10px] font-medium text-[#5C2E3E]"
+              className="font-serif-display text-[11px] italic text-[#6B3A4A] underline-offset-2 hover:underline"
             >
-              <MapPin className="h-3 w-3" />
-              Get Directions
+              Get directions
             </a>
           </div>
 
@@ -109,7 +105,7 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({ guest, onReseal 
             <button
               type="button"
               onClick={onReseal}
-              className="mt-1.5 text-[8px] uppercase tracking-[0.18em] text-[#8B6A72] hover:text-[#5C2E3E]"
+              className="font-label mt-1 text-[7px] uppercase tracking-[0.2em] text-[#9A7A82]"
             >
               Close
             </button>

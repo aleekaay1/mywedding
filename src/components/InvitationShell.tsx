@@ -7,11 +7,12 @@ interface InvitationShellProps {
   onClick?: () => void;
   disabled?: boolean;
   ariaLabel?: string;
+  /** Opened card needs more bottom clearance so content clears the couple. */
+  variant?: 'teaser' | 'details';
 }
 
 /**
- * Exact invitation art from /background.png with a centered text slot.
- * Text lives in the white middle area between florals and the couple.
+ * Exact invitation art from /background.png with a text slot in the white band.
  */
 export const InvitationShell: React.FC<InvitationShellProps> = ({
   children,
@@ -20,8 +21,15 @@ export const InvitationShell: React.FC<InvitationShellProps> = ({
   onClick,
   disabled,
   ariaLabel,
+  variant = 'teaser',
 }) => {
   const sharedClassName = `relative w-full max-w-[400px] mx-auto overflow-hidden shadow-[0_20px_50px_-20px_rgba(60,40,50,0.45)] ${className}`;
+
+  // Details: start higher, end well above the couple heads (~38–40% from bottom)
+  const slotClass =
+    variant === 'details'
+      ? 'absolute inset-x-[12%] top-[18%] bottom-[38%] z-10 flex flex-col items-center justify-start text-center px-1 pt-1'
+      : 'absolute inset-x-[12%] top-[20%] bottom-[34%] z-10 flex flex-col items-center justify-center text-center px-1';
 
   const content = (
     <>
@@ -31,11 +39,7 @@ export const InvitationShell: React.FC<InvitationShellProps> = ({
         className="block w-full h-auto select-none"
         draggable={false}
       />
-
-      {/* Text slot — white middle band of the artwork */}
-      <div className="absolute inset-x-[11%] top-[23%] bottom-[30%] z-10 flex flex-col items-center justify-center text-center overflow-hidden px-1">
-        {children}
-      </div>
+      <div className={slotClass}>{children}</div>
     </>
   );
 

@@ -2,42 +2,36 @@
 
 @layer base {
   body {
-    font-family: 'Outfit', sans-serif;
-    background-color: #F7F2EA;
-    color: #3B2A1E;
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    background-color: #F6EEE8;
+    color: #3D2430;
   }
+}
+
+.font-script {
+  font-family: 'Pinyon Script', 'Great Vibes', cursive;
+  font-weight: 400;
 }
 
 .font-serif-display {
   font-family: 'Cormorant Garamond', Georgia, serif;
 }
 
-.font-script {
-  font-family: 'Great Vibes', cursive;
-}
-
-.font-sans-body {
-  font-family: 'Outfit', sans-serif;
+.font-label {
+  font-family: 'Cinzel', 'Cormorant Garamond', serif;
 }
 
 :root {
-  --bg-cream: #F7F2EA;
-  --bg-tan: #E8D7BC;
-  --text-ink: #3B2A1E;
-  --text-muted: #5C4634;
-  --accent-gold: #C4A35A;
-  --accent-bride: #7A2331;
-  --accent-groom: #1F4B3F;
+  --bg-cream: #F6EEE8;
+  --text-ink: #3D2430;
+  --text-muted: #6B4A55;
+  --accent-rose: #6B3A4A;
 }
 
 ::-webkit-scrollbar {
   width: 5px;
-  height: 5px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #C4A35A80;
+  background: #6B3A4A55;
   border-radius: 9999px;
 }

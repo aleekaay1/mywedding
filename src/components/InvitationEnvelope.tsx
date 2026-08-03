@@ -27,35 +27,42 @@ export const InvitationEnvelope: React.FC<InvitationEnvelopeProps> = ({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 16 }}
+      initial={{ opacity: 0, y: 14 }}
       animate={{ opacity: opening ? 0 : 1, y: opening ? -6 : 0, scale: opening ? 0.98 : 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.4 }}
       className="w-full"
     >
-      <InvitationShell as="button" onClick={handleOpen} ariaLabel="Open wedding invitation">
-        <p className="font-serif-display text-[clamp(16px,4.6vw,22px)] leading-none text-[#4A2F38] mb-1.5">
+      <InvitationShell
+        as="button"
+        variant="teaser"
+        onClick={handleOpen}
+        ariaLabel="Open wedding invitation"
+      >
+        <p className="font-serif-display text-[clamp(15px,4.2vw,20px)] leading-none text-[#4A2F38]">
           بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ
         </p>
 
-        <p className="text-[9px] uppercase tracking-[0.22em] text-[#6B4A55] mb-2">
-          With Allah&apos;s blessings
+        <p className="font-label mt-2 text-[8px] uppercase tracking-[0.28em] text-[#6B4A55]">
+          With Allah&apos;s Blessings
         </p>
 
-        <p className="text-[10px] text-[#6B4A55] mb-0.5">A personal invitation for</p>
-        <p className="font-serif-display text-[clamp(15px,4vw,18px)] font-semibold text-[#3D2430] mb-3 leading-tight">
+        <p className="font-serif-display mt-2 text-[12px] italic text-[#6B4A55]">
+          A personal invitation for
+        </p>
+        <p className="font-serif-display text-[clamp(16px,4.2vw,20px)] font-semibold leading-tight text-[#3D2430]">
           {guest.honorific ? `${guest.honorific} ` : ''}
           {guest.full_name}
         </p>
 
-        <div className="mb-3">
-          <p className="font-script text-[clamp(28px,8vw,40px)] leading-[0.95] text-[#5C2E3E]">
+        <div className="mt-2 mb-2">
+          <p className="font-script text-[clamp(30px,8.5vw,42px)] leading-[0.9] text-[#5C2E3E]">
             {topName}
           </p>
-          <p className="font-script text-[clamp(18px,5vw,26px)] leading-none text-[#8B5A6A] my-0.5">
+          <p className="font-script text-[clamp(20px,5.5vw,28px)] leading-none text-[#8B5A6A]">
             &
           </p>
-          <p className="font-script text-[clamp(28px,8vw,40px)] leading-[0.95] text-[#5C2E3E]">
+          <p className="font-script text-[clamp(30px,8.5vw,42px)] leading-[0.9] text-[#5C2E3E]">
             {bottomName}
           </p>
         </div>
@@ -63,8 +70,7 @@ export const InvitationEnvelope: React.FC<InvitationEnvelopeProps> = ({
         <motion.span
           animate={{ opacity: [0.65, 1, 0.65] }}
           transition={{ duration: 2, repeat: Infinity }}
-          className="inline-flex items-center justify-center rounded-full px-4 py-1.5 text-[9px] uppercase tracking-[0.2em] font-semibold text-white"
-          style={{ backgroundColor: '#6B3A4A' }}
+          className="font-label inline-flex h-8 items-center justify-center rounded-full bg-[#6B3A4A] px-5 text-[9px] font-medium uppercase tracking-[0.2em] text-white leading-none"
         >
           {opening ? 'Opening…' : 'Tap to open'}
         </motion.span>
