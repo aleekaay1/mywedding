@@ -1,0 +1,43 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    font-family: 'Jost', sans-serif;
+    background-color: #F5EFE2;
+    color: #241C15;
+  }
+}
+
+.font-serif-display {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+}
+
+.font-sans-body {
+  font-family: 'Jost', sans-serif;
+}
+
+/* Base palette CSS variables */
+:root {
+  --bg-parchment: #F5EFE2;
+  --text-ink: #241C15;
+  --accent-gold: #B08D3F;
+  --accent-gold-light: #D4AF37;
+  --accent-bride: #7A2331; /* Deep Maroon / Rose */
+  --accent-groom: #1F4B3F; /* Deep Emerald */
+}
+
+/* Custom scrollbar styling for compact view */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #B08D3F50;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #B08D3F;
+}
