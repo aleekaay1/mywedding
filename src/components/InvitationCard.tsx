@@ -12,7 +12,7 @@ interface InvitationCardProps {
 
 export const InvitationCard: React.FC<InvitationCardProps> = ({ guest, onReseal }) => {
   const parts = getDateParts(guest.event_date, guest.event_time);
-  const coupleLine = guest.side === 'bride' ? 'Ammara Weds Ali' : 'Ali Weds Ammara';
+  const coupleLine = guest.side === 'bride' ? 'Ammara & Ali' : 'Ali & Ammara';
 
   return (
     <motion.div

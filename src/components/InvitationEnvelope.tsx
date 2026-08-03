@@ -14,7 +14,7 @@ export const InvitationEnvelope: React.FC<InvitationEnvelopeProps> = ({
   onOpen,
 }) => {
   const [opening, setOpening] = useState(false);
-  const coupleLine = guest.side === 'bride' ? 'Ammara Weds Ali' : 'Ali Weds Ammara';
+  const coupleLine = guest.side === 'bride' ? 'Ammara & Ali' : 'Ali & Ammara';
 
   const handleOpen = () => {
     if (opening) return;
