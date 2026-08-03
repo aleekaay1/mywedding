@@ -37,29 +37,29 @@ export const InvitationEnvelope: React.FC<InvitationEnvelopeProps> = ({
         onClick={handleOpen}
         ariaLabel="Open wedding invitation"
       >
-        <p className="font-serif-display text-[15px] leading-none text-[#4A2F38] sm:text-[18px]">
+        <p className="font-serif-display text-[18px] leading-none text-[#4A2F38] sm:text-[22px]">
           بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ
         </p>
 
-        <p className="font-label mt-1.5 text-[7px] uppercase tracking-[0.22em] text-[#6B4A55] sm:mt-2 sm:text-[8px]">
+        <p className="font-label mt-2 text-[8px] uppercase tracking-[0.24em] text-[#6B4A55] sm:text-[9px]">
           With Allah&apos;s Blessings
         </p>
 
-        <p className="font-serif-display mt-2 text-[11px] italic text-[#6B4A55]">
+        <p className="font-serif-display mt-2.5 text-[13px] italic text-[#6B4A55] sm:text-[14px]">
           A personal invitation for
         </p>
-        <p className="font-serif-display max-w-[200px] text-[15px] font-semibold leading-tight text-[#3D2430] sm:text-[17px]">
+        <p className="font-serif-display max-w-[220px] text-[18px] font-semibold leading-tight text-[#3D2430] sm:text-[20px]">
           {guest.honorific ? `${guest.honorific} ` : ''}
           {guest.full_name}
         </p>
 
-        <OrnamentDivider className="my-2.5 max-w-[120px] sm:my-3" />
+        <OrnamentDivider className="my-3 max-w-[140px] sm:my-3.5" />
 
-        <p className="font-label mb-0.5 text-[7px] uppercase tracking-[0.24em] text-[#8B6A72]">
+        <p className="font-label mb-1 text-[8px] uppercase tracking-[0.24em] text-[#8B6A72]">
           The wedding of
         </p>
         <h1
-          className="font-script mb-3 text-[30px] leading-[1.15] text-[#5C2E3E] sm:text-[40px]"
+          className="font-script mb-3.5 text-[38px] leading-[1.15] text-[#5C2E3E] sm:text-[48px]"
           style={{ fontFamily: '"Alex Brush", cursive' }}
         >
           {coupleLine}
@@ -68,7 +68,7 @@ export const InvitationEnvelope: React.FC<InvitationEnvelopeProps> = ({
         <motion.span
           animate={{ opacity: [0.65, 1, 0.65] }}
           transition={{ duration: 2, repeat: Infinity }}
-          className="font-label inline-flex h-9 items-center justify-center rounded-full bg-[#6B3A4A] px-5 text-[9px] font-medium uppercase tracking-[0.18em] text-white leading-none sm:h-8"
+          className="font-label inline-flex h-10 items-center justify-center rounded-full bg-[#6B3A4A] px-6 text-[10px] font-medium uppercase tracking-[0.18em] text-white leading-none sm:h-9"
         >
           {opening ? 'Opening…' : 'Tap to open'}
         </motion.span>

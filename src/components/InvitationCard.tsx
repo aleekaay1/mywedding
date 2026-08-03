@@ -30,59 +30,59 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({ guest, onReseal 
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.08 }}
-          className="flex w-full max-w-[280px] flex-col items-center"
+          className="flex w-full max-w-[290px] flex-col items-center"
         >
-          <p className="font-serif-display text-[17px] leading-none text-[#3B2A1E] sm:text-[20px]">
+          <p className="font-serif-display text-[19px] leading-none text-[#3B2A1E] sm:text-[22px]">
             بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ
           </p>
 
-          <p className="font-label mt-2 text-[8px] uppercase tracking-[0.24em] text-[#5C4634] sm:text-[9px]">
+          <p className="font-label mt-2.5 text-[9px] uppercase tracking-[0.24em] text-[#5C4634] sm:text-[10px]">
             With Allah&apos;s Blessings
           </p>
 
-          <p className="font-serif-display mt-2 max-w-[220px] text-[12px] leading-snug text-[#5C4634] sm:text-[13px]">
+          <p className="font-serif-display mt-2.5 max-w-[230px] text-[13px] leading-snug text-[#5C4634] sm:text-[14px]">
             You are invited to the {guest.event_name.toLowerCase()} of
           </p>
 
           <h1
-            className="font-script mt-1.5 mb-1.5 text-[34px] leading-[1.15] text-[#3B2A1E] sm:mt-2 sm:mb-2 sm:text-[44px]"
+            className="font-script mt-2 mb-2 text-[40px] leading-[1.15] text-[#3B2A1E] sm:text-[48px]"
             style={{ fontFamily: '"Alex Brush", cursive' }}
           >
             {coupleLine}
           </h1>
 
-          <OrnamentDivider className="mb-2 max-w-[140px] sm:mb-3" />
+          <OrnamentDivider className="mb-2.5 max-w-[150px] sm:mb-3" />
 
-          <p className="font-serif-display text-[15px] font-semibold leading-tight text-[#3B2A1E] sm:text-[17px]">
+          <p className="font-serif-display text-[16px] font-semibold leading-tight text-[#3B2A1E] sm:text-[18px]">
             {dayLabel}, {monthLabel} {parts.dateNum}
           </p>
-          <p className="font-serif-display mt-1 text-[13px] text-[#5C4634] sm:text-[14px]">
+          <p className="font-serif-display mt-1 text-[14px] text-[#5C4634] sm:text-[15px]">
             {timeLabel} · {parts.year}
           </p>
 
-          <p className="font-label mt-2.5 text-[9px] uppercase tracking-[0.16em] text-[#3B2A1E] sm:mt-3 sm:text-[10px]">
+          <p className="font-label mt-3 text-[10px] uppercase tracking-[0.16em] text-[#3B2A1E] sm:text-[11px]">
             {guest.venue_name}
           </p>
-          <p className="font-serif-display mt-1 max-w-[220px] text-[11px] leading-snug text-[#5C4634] line-clamp-2 sm:max-w-[240px] sm:text-[12px]">
+          <p className="font-serif-display mt-1 max-w-[230px] text-[12px] leading-snug text-[#5C4634] line-clamp-2 sm:max-w-[250px] sm:text-[13px]">
             {guest.venue_address}
           </p>
 
-          <OrnamentDivider className="mt-2.5 mb-2 max-w-[140px] sm:mt-3 sm:mb-2.5" />
+          <OrnamentDivider className="mt-3 mb-2.5 max-w-[150px]" />
 
-          <p className="font-serif-display text-[11px] italic text-[#5C4634] sm:text-[12px]">
+          <p className="font-serif-display text-[12px] italic text-[#5C4634] sm:text-[13px]">
             Prepared for
           </p>
-          <p className="font-serif-display max-w-[220px] text-[14px] font-semibold leading-tight text-[#3B2A1E] sm:text-[15px]">
+          <p className="font-serif-display max-w-[230px] text-[15px] font-semibold leading-tight text-[#3B2A1E] sm:text-[16px]">
             {guest.honorific ? `${guest.honorific} ` : ''}
             {guest.full_name}
           </p>
 
-          <div className="mt-3 flex w-full max-w-[210px] flex-col items-center gap-2 sm:mt-4 sm:max-w-[220px]">
+          <div className="mt-3.5 flex w-full max-w-[220px] flex-col items-center gap-2 sm:mt-4 sm:max-w-[230px]">
             <a
               href={guest.rsvp_whatsapp_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex h-10 w-full items-center justify-center rounded-full bg-[#6B3A4A] text-[10px] font-label font-medium uppercase tracking-[0.12em] text-white leading-none sm:h-9"
+              className="inline-flex h-10 w-full items-center justify-center rounded-full bg-[#6B3A4A] text-[10px] font-label font-medium uppercase tracking-[0.12em] text-white leading-none"
             >
               RSVP on WhatsApp
             </a>
@@ -90,7 +90,7 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({ guest, onReseal 
               href={guest.maps_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex h-10 w-full items-center justify-center rounded-full border-2 border-[#6B3A4A] bg-[#FBF7F0]/95 text-[10px] font-label font-medium uppercase tracking-[0.12em] text-[#6B3A4A] leading-none sm:h-9"
+              className="inline-flex h-10 w-full items-center justify-center rounded-full border-2 border-[#6B3A4A] bg-[#FBF7F0]/95 text-[10px] font-label font-medium uppercase tracking-[0.12em] text-[#6B3A4A] leading-none"
             >
               Get Directions
             </a>
