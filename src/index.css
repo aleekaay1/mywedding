@@ -4,13 +4,15 @@
   body {
     font-family: 'Cormorant Garamond', Georgia, serif;
     background-color: #F6EEE8;
-    color: #3D2430;
+    color: #3B2A1E;
   }
 }
 
+/* Flowing wedding script for couple names */
 .font-script {
-  font-family: 'Pinyon Script', 'Great Vibes', cursive;
+  font-family: 'Great Vibes', cursive;
   font-weight: 400;
+  letter-spacing: 0.02em;
 }
 
 .font-serif-display {
@@ -23,8 +25,8 @@
 
 :root {
   --bg-cream: #F6EEE8;
-  --text-ink: #3D2430;
-  --text-muted: #6B4A55;
+  --text-ink: #3B2A1E;
+  --text-muted: #5C4634;
   --accent-rose: #6B3A4A;
 }
 

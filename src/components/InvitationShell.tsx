@@ -7,13 +7,10 @@ interface InvitationShellProps {
   onClick?: () => void;
   disabled?: boolean;
   ariaLabel?: string;
-  /** Opened card needs more bottom clearance so content clears the couple. */
+  /** teaser = sealed cover (background.png); details = opened invite (secondpage.png) */
   variant?: 'teaser' | 'details';
 }
 
-/**
- * Exact invitation art from /background.png with a text slot in the white band.
- */
 export const InvitationShell: React.FC<InvitationShellProps> = ({
   children,
   className = '',
@@ -24,17 +21,18 @@ export const InvitationShell: React.FC<InvitationShellProps> = ({
   variant = 'teaser',
 }) => {
   const sharedClassName = `relative w-full max-w-[400px] mx-auto overflow-hidden shadow-[0_20px_50px_-20px_rgba(60,40,50,0.45)] ${className}`;
+  const imageSrc = variant === 'details' ? '/secondpage.png' : '/background.png';
 
-  // Details: start higher, end well above the couple heads (~38–40% from bottom)
+  // Scalloped beige panel on secondpage — generous centered text area
   const slotClass =
     variant === 'details'
-      ? 'absolute inset-x-[12%] top-[18%] bottom-[38%] z-10 flex flex-col items-center justify-start text-center px-1 pt-1'
+      ? 'absolute inset-x-[16%] top-[14%] bottom-[14%] z-10 flex flex-col items-center justify-center text-center px-2'
       : 'absolute inset-x-[12%] top-[20%] bottom-[34%] z-10 flex flex-col items-center justify-center text-center px-1';
 
   const content = (
     <>
       <img
-        src="/background.png"
+        src={imageSrc}
         alt=""
         className="block w-full h-auto select-none"
         draggable={false}
