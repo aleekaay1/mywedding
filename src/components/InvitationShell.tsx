@@ -8,6 +8,8 @@ interface InvitationShellProps {
   disabled?: boolean;
   ariaLabel?: string;
   variant?: 'teaser' | 'details';
+  /** Tighter slot + no scroll — used for dual-event cards that must stay in frame */
+  compact?: boolean;
 }
 
 export const InvitationShell: React.FC<InvitationShellProps> = ({
@@ -18,6 +20,7 @@ export const InvitationShell: React.FC<InvitationShellProps> = ({
   disabled,
   ariaLabel,
   variant = 'teaser',
+  compact = false,
 }) => {
   const imageSrc = variant === 'details' ? '/secondpage.png' : '/background.png';
 
@@ -33,7 +36,9 @@ export const InvitationShell: React.FC<InvitationShellProps> = ({
 
   const slotClass =
     variant === 'details'
-      ? 'absolute z-10 inset-x-[14%] top-[12%] bottom-[11%] flex flex-col items-center justify-center text-center overflow-y-auto overscroll-contain px-1 py-1 sm:inset-x-[18%] sm:top-[15%] sm:bottom-[14%]'
+      ? compact
+        ? 'absolute z-10 inset-x-[11%] top-[10%] bottom-[9%] flex flex-col items-center justify-center text-center overflow-hidden px-0.5 py-0.5 sm:inset-x-[14%] sm:top-[12%] sm:bottom-[11%]'
+        : 'absolute z-10 inset-x-[14%] top-[12%] bottom-[11%] flex flex-col items-center justify-center text-center overflow-hidden px-1 py-1 sm:inset-x-[18%] sm:top-[15%] sm:bottom-[14%]'
       : 'absolute z-10 inset-x-[12%] top-[18%] bottom-[30%] flex flex-col items-center justify-center text-center overflow-y-auto overscroll-contain px-1 py-1 sm:top-[20%] sm:bottom-[32%]';
 
   const content = (
