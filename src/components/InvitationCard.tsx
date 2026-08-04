@@ -35,21 +35,21 @@ const SideEventColumn: React.FC<{ event: WeddingEvent }> = ({ event }) => {
   const { dateLine, timeLine } = formatEventLine(event);
   return (
     <div className="flex min-w-0 flex-1 flex-col items-center px-1">
-      <p className="font-label text-[8px] font-semibold uppercase tracking-[0.14em] text-[#6B3A4A]">
+      <p className="font-label text-[9px] font-semibold uppercase tracking-[0.14em] text-[#6B3A4A]">
         {event.event_name}
       </p>
-      <p className="font-serif-display mt-0.5 text-[11px] font-semibold leading-tight text-[#3B2A1E]">
+      <p className="font-serif-display mt-0.5 text-[12px] font-semibold leading-tight text-[#3B2A1E]">
         {dateLine}
       </p>
-      <p className="font-serif-display text-[11px] text-[#5C4634]">{timeLine}</p>
-      <p className="font-serif-display mt-1 text-[11px] font-semibold leading-snug text-[#3B2A1E]">
+      <p className="font-serif-display text-[12px] text-[#5C4634]">{timeLine}</p>
+      <p className="font-serif-display mt-1 text-[12px] font-semibold leading-snug text-[#3B2A1E]">
         {event.venue_name}
       </p>
       <a
         href={event.maps_url}
         target="_blank"
         rel="noopener noreferrer"
-        className="font-serif-display mt-0.5 text-[10px] italic text-[#6B3A4A] underline-offset-2 hover:underline"
+        className="font-serif-display mt-0.5 text-[11px] italic text-[#6B3A4A] underline-offset-2 hover:underline"
       >
         Directions
       </a>
@@ -65,19 +65,19 @@ const SingleEventBlock: React.FC<{ event: WeddingEvent }> = ({ event }) => {
 
   return (
     <>
-      <p className="font-label text-[9px] font-medium uppercase tracking-[0.16em] text-[#3B2A1E] sm:text-[10px]">
+      <p className="font-label text-[10px] font-medium uppercase tracking-[0.16em] text-[#3B2A1E] sm:text-[11px]">
         {event.event_name}
       </p>
-      <p className="font-serif-display mt-0.5 text-[15px] font-semibold leading-tight text-[#3B2A1E] sm:text-[16px]">
+      <p className="font-serif-display mt-0.5 text-[17px] font-semibold leading-tight text-[#3B2A1E] sm:text-[18px]">
         {dayLabel}, {monthLabel} {parts.dateNum}
       </p>
-      <p className="font-serif-display mt-0.5 text-[13px] text-[#5C4634] sm:text-[14px]">
+      <p className="font-serif-display mt-0.5 text-[14px] text-[#5C4634] sm:text-[15px]">
         {timeLabel} · {parts.year}
       </p>
-      <p className="font-label mt-2.5 text-[9px] uppercase tracking-[0.16em] text-[#3B2A1E] sm:text-[10px]">
+      <p className="font-label mt-2.5 text-[10px] uppercase tracking-[0.16em] text-[#3B2A1E] sm:text-[11px]">
         {event.venue_name}
       </p>
-      <p className="font-serif-display mt-1 max-w-[230px] text-[12px] leading-snug text-[#5C4634] line-clamp-2 sm:text-[13px]">
+      <p className="font-serif-display mt-1 max-w-[230px] text-[13px] leading-snug text-[#5C4634] line-clamp-2 sm:text-[14px]">
         {event.venue_address}
       </p>
     </>
@@ -108,7 +108,7 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({ guest, onReseal 
         >
           <p
             className={`font-serif-display leading-none text-[#3B2A1E] ${
-              both ? 'text-[16px] sm:text-[18px]' : 'text-[19px] sm:text-[22px]'
+              both ? 'text-[18px] sm:text-[20px]' : 'text-[21px] sm:text-[24px]'
             }`}
           >
             بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ
@@ -116,7 +116,7 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({ guest, onReseal 
 
           <p
             className={`font-label uppercase tracking-[0.22em] text-[#5C4634] ${
-              both ? 'mt-1.5 text-[8px]' : 'mt-2.5 text-[9px] sm:text-[10px]'
+              both ? 'mt-1.5 text-[9px]' : 'mt-2.5 text-[10px] sm:text-[11px]'
             }`}
           >
             With Allah&apos;s Blessings
@@ -125,8 +125,8 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({ guest, onReseal 
           <p
             className={`font-serif-display leading-snug text-[#5C4634] ${
               both
-                ? 'mt-1.5 max-w-[260px] text-[12px]'
-                : 'mt-2.5 max-w-[230px] text-[13px] sm:text-[14px]'
+                ? 'mt-1.5 max-w-[260px] text-[13px]'
+                : 'mt-2.5 max-w-[240px] text-[14px] sm:text-[15px]'
             }`}
           >
             You are invited to the {invitePhrase} of
@@ -134,7 +134,7 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({ guest, onReseal 
 
           <h1
             className={`font-script leading-[1.1] text-[#3B2A1E] ${
-              both ? 'mt-1 mb-1 text-[34px] sm:text-[40px]' : 'mt-2 mb-2 text-[40px] sm:text-[48px]'
+              both ? 'mt-1 mb-1 text-[38px] sm:text-[44px]' : 'mt-2 mb-2 text-[44px] sm:text-[52px]'
             }`}
             style={{ fontFamily: '"Alex Brush", cursive' }}
           >
@@ -155,12 +155,12 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({ guest, onReseal 
 
           <OrnamentDivider className={`max-w-[140px] ${both ? 'mt-2 mb-1.5' : 'mt-3 mb-2.5'}`} />
 
-          <p className={`font-serif-display italic text-[#5C4634] ${both ? 'text-[11px]' : 'text-[12px] sm:text-[13px]'}`}>
+          <p className={`font-serif-display italic text-[#5C4634] ${both ? 'text-[12px]' : 'text-[13px] sm:text-[14px]'}`}>
             Prepared for
           </p>
           <p
-            className={`font-serif-display max-w-[230px] font-semibold leading-tight text-[#3B2A1E] ${
-              both ? 'text-[13px]' : 'text-[15px] sm:text-[16px]'
+            className={`font-serif-display max-w-[240px] font-semibold leading-tight text-[#3B2A1E] ${
+              both ? 'text-[14px]' : 'text-[16px] sm:text-[17px]'
             }`}
           >
             {guest.honorific ? `${guest.honorific} ` : ''}
@@ -169,7 +169,7 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({ guest, onReseal 
 
           <div
             className={`flex w-full flex-col items-center gap-1.5 ${
-              both ? 'mt-2 max-w-[240px]' : 'mt-3.5 max-w-[220px] gap-2 sm:mt-4 sm:max-w-[230px]'
+              both ? 'mt-2 max-w-[250px]' : 'mt-3.5 max-w-[230px] gap-2 sm:mt-4 sm:max-w-[240px]'
             }`}
           >
             <a
@@ -177,7 +177,7 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({ guest, onReseal 
               target="_blank"
               rel="noopener noreferrer"
               className={`inline-flex w-full items-center justify-center rounded-full bg-[#6B3A4A] font-label font-medium uppercase tracking-[0.12em] text-white leading-none ${
-                both ? 'h-9 text-[9px]' : 'h-10 text-[10px]'
+                both ? 'h-9 text-[10px]' : 'h-10 text-[11px]'
               }`}
             >
               RSVP on WhatsApp
@@ -188,7 +188,7 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({ guest, onReseal 
                 href={single.maps_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex h-10 w-full items-center justify-center rounded-full border-2 border-[#6B3A4A] bg-[#FBF7F0]/95 text-[10px] font-label font-medium uppercase tracking-[0.12em] text-[#6B3A4A] leading-none"
+                className="inline-flex h-10 w-full items-center justify-center rounded-full border-2 border-[#6B3A4A] bg-[#FBF7F0]/95 text-[11px] font-label font-medium uppercase tracking-[0.12em] text-[#6B3A4A] leading-none"
               >
                 Get Directions
               </a>
