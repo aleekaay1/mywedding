@@ -24,13 +24,19 @@ Invitations are served at `/i/<guest-slug>`, for example:
 ### How to create invites
 
 1. Open `src/data/guests.ts`
-2. Add a guest object (copy an existing one):
+2. Add a guest object:
    - `slug` — URL-safe id, e.g. `sara-khan`
    - `full_name` / `honorific` — how they appear on the card
-   - `side` — `"bride"` (Baraat) or `"groom"` (Walima)
+   - `events` — `['baraat']`, `['walima']`, or `['baraat', 'walima']` for both
 3. Push to GitHub → Vercel redeploys
 4. Share this link on WhatsApp:  
    `https://hamarishaadi.vercel.app/i/sara-khan`
+
+Examples:
+
+- Baraat only: `events: ['baraat']` → `/i/ahmad-family`
+- Walima only: `events: ['walima']` → `/i/tariq-malik`
+- Both: `events: ['baraat', 'walima']` → `/i/raza-family`
 
 ### WhatsApp thumbnail preview
 

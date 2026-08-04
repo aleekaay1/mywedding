@@ -1,8 +1,15 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { Guest, ThemeColors } from '../types';
+import { Guest, ThemeColors, WeddingEvent } from '../types';
 import { InvitationShell } from './InvitationShell';
 import { getDateParts } from '../utils/dateParts';
+import {
+  getCoupleLine,
+  getInvitePhrase,
+  getRsvpUrl,
+  isBothEvents,
+  resolveGuestEvents,
+} from '../utils/guestEvents';
 import { OrnamentDivider } from './OrnamentDivider';
 
 interface InvitationCardProps {
@@ -11,12 +18,55 @@ interface InvitationCardProps {
   onReseal?: () => void;
 }
 
-export const InvitationCard: React.FC<InvitationCardProps> = ({ guest, onReseal }) => {
-  const parts = getDateParts(guest.event_date, guest.event_time);
-  const coupleLine = guest.side === 'bride' ? 'Ammara & Ali' : 'Ali & Ammara';
-  const timeLabel = parts.time.replace(/^AT\s+/i, '');
+function formatEventLine(event: WeddingEvent) {
+  const parts = getDateParts(event.event_date, event.event_time);
   const dayLabel = parts.day.charAt(0) + parts.day.slice(1).toLowerCase();
   const monthLabel = parts.month.charAt(0) + parts.month.slice(1).toLowerCase();
+  const timeLabel = parts.time.replace(/^AT\s+/i, '');
+  return {
+    dateLine: `${dayLabel}, ${monthLabel} ${parts.dateNum}`,
+    timeLine: `${timeLabel} · ${parts.year}`,
+  };
+}
+
+const CompactEventBlock: React.FC<{ event: WeddingEvent; showDirections?: boolean }> = ({
+  event,
+  showDirections = true,
+}) => {
+  const { dateLine, timeLine } = formatEventLine(event);
+  return (
+    <div className="w-full max-w-[240px]">
+      <p className="font-label text-[9px] font-medium uppercase tracking-[0.16em] text-[#3B2A1E] sm:text-[10px]">
+        {event.event_name}
+      </p>
+      <p className="font-serif-display mt-0.5 text-[14px] font-semibold leading-tight text-[#3B2A1E] sm:text-[15px]">
+        {dateLine}
+      </p>
+      <p className="font-serif-display text-[12px] text-[#5C4634] sm:text-[13px]">{timeLine}</p>
+      <p className="font-serif-display mt-1 text-[12px] font-semibold text-[#3B2A1E] sm:text-[13px]">
+        {event.venue_name}
+      </p>
+      {showDirections && (
+        <a
+          href={event.maps_url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="font-serif-display mt-0.5 inline-block text-[11px] italic text-[#6B3A4A] underline-offset-2 hover:underline sm:text-[12px]"
+        >
+          Directions
+        </a>
+      )}
+    </div>
+  );
+};
+
+export const InvitationCard: React.FC<InvitationCardProps> = ({ guest, onReseal }) => {
+  const events = resolveGuestEvents(guest);
+  const both = isBothEvents(guest);
+  const coupleLine = getCoupleLine(guest);
+  const invitePhrase = getInvitePhrase(guest);
+  const rsvpUrl = getRsvpUrl(guest);
+  const single = events[0];
 
   return (
     <motion.div
@@ -41,7 +91,7 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({ guest, onReseal 
           </p>
 
           <p className="font-serif-display mt-2.5 max-w-[230px] text-[13px] leading-snug text-[#5C4634] sm:text-[14px]">
-            You are invited to the {guest.event_name.toLowerCase()} of
+            You are invited to the {invitePhrase} of
           </p>
 
           <h1
@@ -53,19 +103,23 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({ guest, onReseal 
 
           <OrnamentDivider className="mb-2.5 max-w-[150px] sm:mb-3" />
 
-          <p className="font-serif-display text-[16px] font-semibold leading-tight text-[#3B2A1E] sm:text-[18px]">
-            {dayLabel}, {monthLabel} {parts.dateNum}
-          </p>
-          <p className="font-serif-display mt-1 text-[14px] text-[#5C4634] sm:text-[15px]">
-            {timeLabel} · {parts.year}
-          </p>
-
-          <p className="font-label mt-3 text-[10px] uppercase tracking-[0.16em] text-[#3B2A1E] sm:text-[11px]">
-            {guest.venue_name}
-          </p>
-          <p className="font-serif-display mt-1 max-w-[230px] text-[12px] leading-snug text-[#5C4634] line-clamp-2 sm:max-w-[250px] sm:text-[13px]">
-            {guest.venue_address}
-          </p>
+          {both ? (
+            <div className="flex w-full flex-col items-center gap-2">
+              {events.map((event, index) => (
+                <React.Fragment key={event.key}>
+                  {index > 0 && <div className="h-px w-16 bg-[#3B2A1E]/20" />}
+                  <CompactEventBlock event={event} />
+                </React.Fragment>
+              ))}
+            </div>
+          ) : single ? (
+            <>
+              <CompactEventBlock event={single} showDirections={false} />
+              <p className="font-serif-display mt-1 max-w-[230px] text-[12px] leading-snug text-[#5C4634] line-clamp-2 sm:text-[13px]">
+                {single.venue_address}
+              </p>
+            </>
+          ) : null}
 
           <OrnamentDivider className="mt-3 mb-2.5 max-w-[150px]" />
 
@@ -79,21 +133,24 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({ guest, onReseal 
 
           <div className="mt-3.5 flex w-full max-w-[220px] flex-col items-center gap-2 sm:mt-4 sm:max-w-[230px]">
             <a
-              href={guest.rsvp_whatsapp_url}
+              href={rsvpUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex h-10 w-full items-center justify-center rounded-full bg-[#6B3A4A] text-[10px] font-label font-medium uppercase tracking-[0.12em] text-white leading-none"
             >
               RSVP on WhatsApp
             </a>
-            <a
-              href={guest.maps_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex h-10 w-full items-center justify-center rounded-full border-2 border-[#6B3A4A] bg-[#FBF7F0]/95 text-[10px] font-label font-medium uppercase tracking-[0.12em] text-[#6B3A4A] leading-none"
-            >
-              Get Directions
-            </a>
+
+            {!both && single && (
+              <a
+                href={single.maps_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex h-10 w-full items-center justify-center rounded-full border-2 border-[#6B3A4A] bg-[#FBF7F0]/95 text-[10px] font-label font-medium uppercase tracking-[0.12em] text-[#6B3A4A] leading-none"
+              >
+                Get Directions
+              </a>
+            )}
           </div>
 
           {onReseal && (

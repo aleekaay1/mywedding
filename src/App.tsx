@@ -5,6 +5,7 @@ import { ThemeColors } from './types';
 import { InvitationEnvelope } from './components/InvitationEnvelope';
 import { InvitationCard } from './components/InvitationCard';
 import { NotFoundCard } from './components/NotFoundCard';
+import { usesBrideTheme } from './utils/guestEvents';
 import { Loader2 } from 'lucide-react';
 
 function getSlugFromLocation(): string | null {
@@ -32,18 +33,18 @@ export default function App() {
   }, []);
 
   const theme: ThemeColors = useMemo(() => {
-    const isBride = (guest?.side || 'bride') === 'bride';
+    const brideTheme = usesBrideTheme(guest);
 
     return {
-      accent: isBride ? '#6B3A4A' : '#4A3A4A',
-      accentBg: '#6B3A4A12',
-      accentBorder: '#6B3A4A40',
-      label: isBride ? "Baraat · Girl's side" : "Walima · Boy's side",
+      accent: brideTheme ? '#6B3A4A' : '#1F4B3F',
+      accentBg: brideTheme ? '#6B3A4A12' : '#1F4B3F12',
+      accentBorder: brideTheme ? '#6B3A4A40' : '#1F4B3F40',
+      label: brideTheme ? 'Baraat' : 'Walima',
       gold: '#C4A35A',
       parchment: '#FBF7F2',
       ink: '#3D2430',
     };
-  }, [guest?.side]);
+  }, [guest]);
 
   const handleEnvelopeOpen = () => {
     setIsOpen(true);

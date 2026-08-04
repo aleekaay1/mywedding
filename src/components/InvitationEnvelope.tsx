@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import { Guest, ThemeColors } from '../types';
 import { InvitationShell } from './InvitationShell';
 import { OrnamentDivider } from './OrnamentDivider';
+import { getCoupleLine, getInviteLabel, isBothEvents } from '../utils/guestEvents';
 
 interface InvitationEnvelopeProps {
   guest: Guest;
@@ -15,7 +16,9 @@ export const InvitationEnvelope: React.FC<InvitationEnvelopeProps> = ({
   onOpen,
 }) => {
   const [opening, setOpening] = useState(false);
-  const coupleLine = guest.side === 'bride' ? 'Ammara & Ali' : 'Ali & Ammara';
+  const coupleLine = getCoupleLine(guest);
+  const both = isBothEvents(guest);
+  const inviteLabel = getInviteLabel(guest);
 
   const handleOpen = () => {
     if (opening) return;
@@ -55,9 +58,14 @@ export const InvitationEnvelope: React.FC<InvitationEnvelopeProps> = ({
 
         <OrnamentDivider className="my-3 max-w-[140px] sm:my-3.5" />
 
-        <p className="font-label mb-1 text-[8px] uppercase tracking-[0.24em] text-[#8B6A72]">
-          The wedding of
+        <p
+          className={`font-label mb-1 text-[8px] uppercase tracking-[0.22em] ${
+            both ? 'text-[#6B3A4A]' : 'text-[#8B6A72]'
+          }`}
+        >
+          {both ? inviteLabel : 'The wedding of'}
         </p>
+
         <h1
           className="font-script mb-3.5 text-[38px] leading-[1.15] text-[#5C2E3E] sm:text-[48px]"
           style={{ fontFamily: '"Alex Brush", cursive' }}
