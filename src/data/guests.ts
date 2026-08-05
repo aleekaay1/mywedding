@@ -84,4 +84,11 @@ export const GUESTS: Guest[] = [
     events: ['baraat', 'walima'],
     viewed: false,
   },
+  {
+    slug: 'khursheed-family',
+    full_name: 'Khursheed & Family',
+    honorific: 'Mr & Mrs',
+    events: ['baraat', 'walima'],
+    viewed: false,
+  },
 ];
