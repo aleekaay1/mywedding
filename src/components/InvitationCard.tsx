@@ -5,6 +5,7 @@ import { InvitationShell } from './InvitationShell';
 import { getDateParts } from '../utils/dateParts';
 import {
   getCoupleLine,
+  getDualRsvpLinks,
   getInvitePhrase,
   getRsvpUrl,
   isBothEvents,
@@ -90,6 +91,7 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({ guest, onReseal 
   const coupleLine = getCoupleLine(guest);
   const invitePhrase = getInvitePhrase(guest);
   const rsvpUrl = getRsvpUrl(guest);
+  const dualRsvp = both ? getDualRsvpLinks(guest) : null;
   const single = events[0];
 
   return (
@@ -169,19 +171,43 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({ guest, onReseal 
 
           <div
             className={`flex w-full flex-col items-center gap-1.5 ${
-              both ? 'mt-2 max-w-[250px]' : 'mt-3.5 max-w-[230px] gap-2 sm:mt-4 sm:max-w-[240px]'
+              both ? 'mt-2 max-w-[280px]' : 'mt-3.5 max-w-[230px] gap-2 sm:mt-4 sm:max-w-[240px]'
             }`}
           >
-            <a
-              href={rsvpUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`inline-flex w-full items-center justify-center rounded-full bg-[#6B3A4A] font-label font-medium uppercase tracking-[0.12em] text-white leading-none ${
-                both ? 'h-9 text-[10px]' : 'h-10 text-[11px]'
-              }`}
-            >
-              RSVP on WhatsApp
-            </a>
+            {both && dualRsvp ? (
+              <>
+                <p className="font-label text-[8px] uppercase tracking-[0.18em] text-[#5C4634]">
+                  Confirm RSVP
+                </p>
+                <div className="flex w-full gap-1.5">
+                  <a
+                    href={dualRsvp.bride.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex h-10 flex-1 items-center justify-center rounded-full bg-[#6B3A4A] px-1 text-[8px] font-label font-medium uppercase tracking-[0.06em] text-white leading-tight text-center"
+                  >
+                    {dualRsvp.bride.label}
+                  </a>
+                  <a
+                    href={dualRsvp.groom.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex h-10 flex-1 items-center justify-center rounded-full bg-[#1F4B3F] px-1 text-[8px] font-label font-medium uppercase tracking-[0.06em] text-white leading-tight text-center"
+                  >
+                    {dualRsvp.groom.label}
+                  </a>
+                </div>
+              </>
+            ) : (
+              <a
+                href={rsvpUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex h-10 w-full items-center justify-center rounded-full bg-[#6B3A4A] text-[11px] font-label font-medium uppercase tracking-[0.12em] text-white leading-none"
+              >
+                RSVP on WhatsApp
+              </a>
+            )}
 
             {!both && single && (
               <a

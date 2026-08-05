@@ -37,22 +37,46 @@ export function getInvitePhrase(guest: Guest): string {
   return 'baraat';
 }
 
-/**
- * Single RSVP link.
- * Both-event guests → girl's side number, message confirms both events.
- */
+function guestLabel(guest: Guest): string {
+  return [guest.honorific, guest.full_name].filter(Boolean).join(' ');
+}
+
+function waLink(number: string, message: string): string {
+  return `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
+}
+
+/** Single-event RSVP link (baraat → bride number, walima → groom number). */
 export function getRsvpUrl(guest: Guest): string {
   const events = normalizeEvents(guest.events);
-  const guestLabel = [guest.honorific, guest.full_name].filter(Boolean).join(' ');
-  const eventLabel =
-    events.length === 2
-      ? 'Baraat & Walima'
-      : events[0] === 'walima'
-        ? 'Walima'
-        : 'Baraat';
-  const number = events.length === 1 && events[0] === 'walima' ? RSVP_WALIMA : RSVP_BARAAT;
-  const text = `Assalamu Alaikum! ${guestLabel} confirms RSVP for the ${eventLabel}.`;
-  return `https://wa.me/${number}?text=${encodeURIComponent(text)}`;
+  const isWalimaOnly = events.length === 1 && events[0] === 'walima';
+  const eventLabel = isWalimaOnly ? 'Walima' : 'Baraat';
+  const number = isWalimaOnly ? RSVP_WALIMA : RSVP_BARAAT;
+  const text = `Assalamu Alaikum! ${guestLabel(guest)} warmly confirms attendance for the ${eventLabel}.`;
+  return waLink(number, text);
+}
+
+/** Dual-event: separate RSVP links for bride's side (Baraat) and groom's side (Walima). */
+export function getDualRsvpLinks(guest: Guest): {
+  bride: { href: string; label: string };
+  groom: { href: string; label: string };
+} {
+  const label = guestLabel(guest);
+  return {
+    bride: {
+      label: "Bride's Side",
+      href: waLink(
+        RSVP_BARAAT,
+        `Assalamu Alaikum! ${label} warmly confirms attendance for the Baraat.`,
+      ),
+    },
+    groom: {
+      label: "Groom's Side",
+      href: waLink(
+        RSVP_WALIMA,
+        `Assalamu Alaikum! ${label} warmly confirms attendance for the Walima.`,
+      ),
+    },
+  };
 }
 
 /** Theme accent: walima-only emerald; otherwise bride maroon (including both). */
