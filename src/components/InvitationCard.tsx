@@ -176,15 +176,15 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({ guest, onReseal 
           >
             {both && dualRsvp ? (
               <>
-                <p className="font-label text-[8px] uppercase tracking-[0.18em] text-[#5C4634]">
+                <p className="font-label text-[8px] uppercase tracking-[0.2em] text-[#5C4634]">
                   Confirm RSVP
                 </p>
-                <div className="flex w-full gap-1.5">
+                <div className="flex w-full gap-2">
                   <a
                     href={dualRsvp.bride.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex h-10 flex-1 items-center justify-center rounded-full bg-[#6B3A4A] px-1 text-[8px] font-label font-medium uppercase tracking-[0.06em] text-white leading-tight text-center"
+                    className="inline-flex h-9 flex-1 items-center justify-center border border-[#3B2A1E] bg-transparent px-2 text-[8px] font-label font-medium uppercase tracking-[0.1em] text-[#3B2A1E] leading-tight text-center transition-colors hover:bg-[#3B2A1E] hover:text-[#FBF7F0]"
                   >
                     {dualRsvp.bride.label}
                   </a>
@@ -192,7 +192,7 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({ guest, onReseal 
                     href={dualRsvp.groom.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex h-10 flex-1 items-center justify-center rounded-full bg-[#1F4B3F] px-1 text-[8px] font-label font-medium uppercase tracking-[0.06em] text-white leading-tight text-center"
+                    className="inline-flex h-9 flex-1 items-center justify-center border border-[#3B2A1E] bg-transparent px-2 text-[8px] font-label font-medium uppercase tracking-[0.1em] text-[#3B2A1E] leading-tight text-center transition-colors hover:bg-[#3B2A1E] hover:text-[#FBF7F0]"
                   >
                     {dualRsvp.groom.label}
                   </a>
