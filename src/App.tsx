@@ -6,6 +6,7 @@ import { InvitationEnvelope } from './components/InvitationEnvelope';
 import { InvitationCard } from './components/InvitationCard';
 import { NotFoundCard } from './components/NotFoundCard';
 import { usesBrideTheme } from './utils/guestEvents';
+import { AdminPage } from './pages/AdminPage';
 import { Loader2 } from 'lucide-react';
 
 function getSlugFromLocation(): string | null {
@@ -17,14 +18,22 @@ function getSlugFromLocation(): string | null {
   return guestParam || null;
 }
 
+function isAdminPath(): boolean {
+  return window.location.pathname.replace(/\/$/, '') === '/admin';
+}
+
 export default function App() {
+  const [isAdmin, setIsAdmin] = useState(isAdminPath);
   const [activeSlug, setActiveSlug] = useState<string | null>(getSlugFromLocation);
   const [isOpen, setIsOpen] = useState(false);
 
-  const { guest, loading, error, markViewed } = useGuestData(activeSlug ?? undefined);
+  const { guest, loading, error, markViewed } = useGuestData(
+    isAdmin ? undefined : (activeSlug ?? undefined),
+  );
 
   useEffect(() => {
     const handlePopState = () => {
+      setIsAdmin(isAdminPath());
       setActiveSlug(getSlugFromLocation());
       setIsOpen(false);
     };
@@ -50,6 +59,10 @@ export default function App() {
     setIsOpen(true);
     markViewed();
   };
+
+  if (isAdmin) {
+    return <AdminPage />;
+  }
 
   return (
     <div className="min-h-[100dvh] h-[100dvh] w-full overflow-hidden bg-[#F6EEE8] sm:min-h-screen sm:h-auto sm:overflow-x-hidden sm:flex sm:flex-col sm:items-center sm:justify-center sm:p-5">

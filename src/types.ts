@@ -16,6 +16,8 @@ export interface Guest {
   honorific?: string;
   /** Which ceremonies this guest is invited to */
   events: EventKey[];
+  /** WhatsApp number digits, e.g. 923001234567 */
+  phone?: string;
   viewed: boolean;
   custom_message?: string;
 }

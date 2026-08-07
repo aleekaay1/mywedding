@@ -1,0 +1,65 @@
+[
+  {
+    "slug": "ahmad-family",
+    "full_name": "Ahmad & Family",
+    "honorific": "Mr & Mrs",
+    "events": ["baraat"],
+    "viewed": false
+  },
+  {
+    "slug": "tariq-malik",
+    "full_name": "Tariq Malik",
+    "honorific": "Mr",
+    "events": ["walima"],
+    "viewed": false
+  },
+  {
+    "slug": "zainab-khan",
+    "full_name": "Zainab Khan & Guests",
+    "honorific": "Ms",
+    "events": ["baraat"],
+    "viewed": false
+  },
+  {
+    "slug": "dr-usman-ali",
+    "full_name": "Dr. Usman Ali & Family",
+    "honorific": "Dr & Mrs",
+    "events": ["walima"],
+    "viewed": false
+  },
+  {
+    "slug": "fatima-syed",
+    "full_name": "Fatima Syed",
+    "honorific": "Ms",
+    "events": ["baraat"],
+    "viewed": false
+  },
+  {
+    "slug": "hamza-farooq",
+    "full_name": "Hamza Farooq",
+    "honorific": "Mr",
+    "events": ["walima"],
+    "viewed": false
+  },
+  {
+    "slug": "raza-family",
+    "full_name": "Raza & Family",
+    "honorific": "Mr & Mrs",
+    "events": ["baraat", "walima"],
+    "viewed": false
+  },
+  {
+    "slug": "khursheed-family",
+    "full_name": "Khursheed & Family",
+    "honorific": "Mr & Mrs",
+    "events": ["baraat", "walima"],
+    "viewed": false
+  },
+  {
+    "slug": "alex-paz",
+    "full_name": "Alex Paz",
+    "honorific": "Mr",
+    "events": ["baraat", "walima"],
+    "viewed": false
+  }
+]
