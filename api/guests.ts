@@ -1,4 +1,4 @@
-import { list, put } from '@vercel/blob';
+import { get, put } from '@vercel/blob';
 
 type EventKey = 'baraat' | 'walima';
 
@@ -75,17 +75,18 @@ async function readGuests(): Promise<Guest[]> {
   }
 
   try {
-    const { blobs } = await list({
-      prefix: BLOB_PATHNAME,
-      limit: 20,
+    // Private Blob stores require authenticated get() — URLs are not public
+    const result = await get(BLOB_PATHNAME, {
+      access: 'private',
       token: process.env.BLOB_READ_WRITE_TOKEN,
     });
-    const blob = blobs.find((b) => b.pathname === BLOB_PATHNAME) ?? blobs[0];
-    if (!blob?.url) return SEED_GUESTS;
 
-    const res = await fetch(blob.url);
-    if (!res.ok) return SEED_GUESTS;
-    const parsed = await res.json();
+    if (!result || result.statusCode !== 200 || !result.stream) {
+      return SEED_GUESTS;
+    }
+
+    const text = await new Response(result.stream).text();
+    const parsed = JSON.parse(text);
     return Array.isArray(parsed) && parsed.length ? (parsed as Guest[]) : SEED_GUESTS;
   } catch {
     return SEED_GUESTS;
@@ -99,8 +100,9 @@ async function writeGuests(guests: Guest[]): Promise<void> {
     );
   }
 
+  // Store is private — access mode cannot be changed after creation
   await put(BLOB_PATHNAME, JSON.stringify(guests, null, 2), {
-    access: 'public',
+    access: 'private',
     addRandomSuffix: false,
     allowOverwrite: true,
     contentType: 'application/json',
