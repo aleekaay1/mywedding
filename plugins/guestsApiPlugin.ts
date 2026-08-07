@@ -1,8 +1,34 @@
+import fs from 'fs';
+import path from 'path';
 import type { IncomingMessage, ServerResponse } from 'http';
 import type { Plugin } from 'vite';
-import { getAdminPassword, isAuthorized } from '../api/lib/auth';
-import { getGuests, setGuests } from '../api/lib/store';
 import type { Guest } from '../src/types';
+
+const DATA_FILE = path.join(process.cwd(), 'data', 'guests.json');
+
+function adminPassword(): string {
+  return process.env.ADMIN_PASSWORD || process.env.VITE_ADMIN_PASSWORD || 'wedding2026';
+}
+
+function isAuthorized(authHeader: string | undefined): boolean {
+  if (!authHeader?.startsWith('Bearer ')) return false;
+  return authHeader.slice(7).trim() === adminPassword();
+}
+
+function readGuests(): Guest[] {
+  try {
+    const raw = fs.readFileSync(DATA_FILE, 'utf8');
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? (parsed as Guest[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeGuests(guests: Guest[]): void {
+  fs.mkdirSync(path.dirname(DATA_FILE), { recursive: true });
+  fs.writeFileSync(DATA_FILE, JSON.stringify(guests, null, 2), 'utf8');
+}
 
 async function readBody(req: IncomingMessage): Promise<string> {
   const chunks: Buffer[] = [];
@@ -31,16 +57,15 @@ export function guestsApiPlugin(): Plugin {
           if (url === '/api/admin-login' && req.method === 'POST') {
             const raw = await readBody(req);
             const body = raw ? JSON.parse(raw) : {};
-            if (String(body.password ?? '') !== getAdminPassword()) {
+            if (String(body.password ?? '') !== adminPassword()) {
               return sendJson(res, 401, { error: 'Wrong password' });
             }
-            return sendJson(res, 200, { token: getAdminPassword() });
+            return sendJson(res, 200, { token: adminPassword() });
           }
 
           if (url === '/api/guests') {
             if (req.method === 'GET') {
-              const guests = await getGuests();
-              return sendJson(res, 200, { guests });
+              return sendJson(res, 200, { guests: readGuests() });
             }
             if (req.method === 'PUT') {
               if (!isAuthorized(req.headers.authorization)) {
@@ -51,10 +76,7 @@ export function guestsApiPlugin(): Plugin {
               if (!Array.isArray(body.guests)) {
                 return sendJson(res, 400, { error: 'Body must be { guests: Guest[] }' });
               }
-              const result = await setGuests(body.guests as Guest[]);
-              if (result.ok === false) {
-                return sendJson(res, 503, { error: result.error });
-              }
+              writeGuests(body.guests as Guest[]);
               return sendJson(res, 200, { ok: true, count: body.guests.length });
             }
           }

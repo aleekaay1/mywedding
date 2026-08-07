@@ -1,46 +1,141 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { isAuthorized } from './lib/auth';
-import { getGuests, setGuests } from './lib/store';
-import type { Guest } from '../src/types';
+import { list, put } from '@vercel/blob';
 
-function setCors(res: VercelResponse) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,PUT,OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+type EventKey = 'baraat' | 'walima';
+
+interface Guest {
+  slug: string;
+  full_name: string;
+  honorific?: string;
+  events: EventKey[];
+  phone?: string;
+  viewed: boolean;
+  custom_message?: string;
 }
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
-  setCors(res);
-  if (req.method === 'OPTIONS') {
-    return res.status(204).end();
+const BLOB_PATHNAME = 'wedding-guests.json';
+
+const SEED_GUESTS: Guest[] = [
+  {
+    slug: 'ahmad-family',
+    full_name: 'Ahmad & Family',
+    honorific: 'Mr & Mrs',
+    events: ['baraat'],
+    viewed: false,
+  },
+  {
+    slug: 'tariq-malik',
+    full_name: 'Tariq Malik',
+    honorific: 'Mr',
+    events: ['walima'],
+    viewed: false,
+  },
+  {
+    slug: 'zainab-khan',
+    full_name: 'Zainab Khan & Guests',
+    honorific: 'Ms',
+    events: ['baraat'],
+    viewed: false,
+  },
+  {
+    slug: 'raza-family',
+    full_name: 'Raza & Family',
+    honorific: 'Mr & Mrs',
+    events: ['baraat', 'walima'],
+    viewed: false,
+  },
+  {
+    slug: 'khursheed-family',
+    full_name: 'Khursheed & Family',
+    honorific: 'Mr & Mrs',
+    events: ['baraat', 'walima'],
+    viewed: false,
+  },
+  {
+    slug: 'alex-paz',
+    full_name: 'Alex Paz',
+    honorific: 'Mr',
+    events: ['baraat', 'walima'],
+    viewed: false,
+  },
+];
+
+function adminPassword(): string {
+  return process.env.ADMIN_PASSWORD || process.env.VITE_ADMIN_PASSWORD || 'wedding2026';
+}
+
+function isAuthorized(request: Request): boolean {
+  const auth = request.headers.get('authorization');
+  if (!auth?.startsWith('Bearer ')) return false;
+  return auth.slice(7).trim() === adminPassword();
+}
+
+async function readGuests(): Promise<Guest[]> {
+  if (!process.env.BLOB_READ_WRITE_TOKEN) {
+    return SEED_GUESTS;
   }
 
   try {
-    if (req.method === 'GET') {
-      const guests = await getGuests();
-      res.setHeader('Cache-Control', 'no-store');
-      return res.status(200).json({ guests });
-    }
+    const { blobs } = await list({
+      prefix: BLOB_PATHNAME,
+      limit: 20,
+      token: process.env.BLOB_READ_WRITE_TOKEN,
+    });
+    const blob = blobs.find((b) => b.pathname === BLOB_PATHNAME) ?? blobs[0];
+    if (!blob?.url) return SEED_GUESTS;
 
-    if (req.method === 'PUT') {
-      if (!isAuthorized(req.headers.authorization)) {
-        return res.status(401).json({ error: 'Unauthorized' });
-      }
-      const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
-      const guests = body?.guests;
-      if (!Array.isArray(guests)) {
-        return res.status(400).json({ error: 'Body must be { guests: Guest[] }' });
-      }
-      const result = await setGuests(guests as Guest[]);
-      if (!result.ok) {
-        return res.status(503).json({ error: result.error });
-      }
-      return res.status(200).json({ ok: true, count: guests.length });
-    }
+    const res = await fetch(blob.url);
+    if (!res.ok) return SEED_GUESTS;
+    const parsed = await res.json();
+    return Array.isArray(parsed) && parsed.length ? (parsed as Guest[]) : SEED_GUESTS;
+  } catch {
+    return SEED_GUESTS;
+  }
+}
 
-    return res.status(405).json({ error: 'Method not allowed' });
+async function writeGuests(guests: Guest[]): Promise<void> {
+  if (!process.env.BLOB_READ_WRITE_TOKEN) {
+    throw new Error(
+      'BLOB_READ_WRITE_TOKEN is missing. Connect your Blob store in Vercel and redeploy.',
+    );
+  }
+
+  await put(BLOB_PATHNAME, JSON.stringify(guests, null, 2), {
+    access: 'public',
+    addRandomSuffix: false,
+    allowOverwrite: true,
+    contentType: 'application/json',
+    token: process.env.BLOB_READ_WRITE_TOKEN,
+  });
+}
+
+export async function GET(): Promise<Response> {
+  try {
+    const guests = await readGuests();
+    return Response.json(
+      { guests },
+      { headers: { 'Cache-Control': 'no-store' } },
+    );
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Server error';
-    return res.status(500).json({ error: message });
+    return Response.json({ error: message }, { status: 500 });
+  }
+}
+
+export async function PUT(request: Request): Promise<Response> {
+  try {
+    if (!isAuthorized(request)) {
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const body = (await request.json()) as { guests?: Guest[] };
+    if (!Array.isArray(body?.guests)) {
+      return Response.json({ error: 'Body must be { guests: Guest[] }' }, { status: 400 });
+    }
+
+    await writeGuests(body.guests);
+    return Response.json({ ok: true, count: body.guests.length });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Server error';
+    return Response.json({ error: message }, { status: 503 });
   }
 }

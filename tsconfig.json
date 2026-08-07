@@ -24,10 +24,10 @@
     "noEmit": true
   },
   "exclude": [
-    "api/guests.ts",
-    "api/admin-login.ts",
+    "api",
     "dist",
     "node_modules"
   ]
 }
+
 
