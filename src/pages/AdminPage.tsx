@@ -6,11 +6,14 @@ import {
   Loader2,
   LogOut,
   MessageCircle,
+  Plus,
   RefreshCw,
+  Trash2,
   Upload,
 } from 'lucide-react';
-import { Guest } from '../types';
+import { EventKey, Guest } from '../types';
 import { parseGuestsCsv, inviteUrl, whatsappInviteUrl } from '../utils/csv';
+import { normalizePhone, slugifyName } from '../utils/slug';
 import {
   fetchAllGuests,
   loginAdmin,
@@ -19,6 +22,8 @@ import {
 
 const TOKEN_KEY = 'wedding_admin_token';
 
+type EventChoice = 'baraat' | 'walima' | 'both';
+
 function eventLabel(events: Guest['events']): string {
   const hasB = events.includes('baraat');
   const hasW = events.includes('walima');
@@ -26,6 +31,23 @@ function eventLabel(events: Guest['events']): string {
   if (hasW) return 'Walima';
   return 'Baraat';
 }
+
+function eventsFromChoice(choice: EventChoice): EventKey[] {
+  if (choice === 'both') return ['baraat', 'walima'];
+  return [choice];
+}
+
+function uniqueSlug(name: string, existing: Guest[]): string {
+  let slug = slugifyName(name) || 'guest';
+  const used = new Set(existing.map((g) => g.slug.toLowerCase()));
+  if (!used.has(slug)) return slug;
+  let n = 2;
+  while (used.has(`${slug}-${n}`)) n++;
+  return `${slug}-${n}`;
+}
+
+const fieldClass =
+  'mt-2 w-full border border-[#3D2430]/15 bg-white/70 px-3 py-2.5 text-sm text-[#3D2430] outline-none focus:border-[#6B3A4A]/50';
 
 export function AdminPage() {
   const [token, setToken] = useState<string | null>(() => sessionStorage.getItem(TOKEN_KEY));
@@ -40,6 +62,11 @@ export function AdminPage() {
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState('');
   const [copiedSlug, setCopiedSlug] = useState<string | null>(null);
+
+  const [fullName, setFullName] = useState('');
+  const [honorific, setHonorific] = useState('');
+  const [phone, setPhone] = useState('');
+  const [eventChoice, setEventChoice] = useState<EventChoice>('baraat');
 
   const loadGuests = useCallback(async () => {
     setLoading(true);
@@ -68,6 +95,22 @@ export function AdminPage() {
         (g.phone || '').includes(q),
     );
   }, [guests, query]);
+
+  const persistGuests = async (next: Guest[], successMsg: string) => {
+    if (!token) return;
+    setBusy(true);
+    setError(null);
+    setMessage(null);
+    try {
+      await replaceAllGuests(next, token);
+      setGuests(next);
+      setMessage(successMsg);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Save failed');
+    } finally {
+      setBusy(false);
+    }
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -109,6 +152,39 @@ export function AdminPage() {
     }
   };
 
+  const handleAddGuest = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const name = fullName.trim();
+    if (!name) {
+      setError('Name is required.');
+      return;
+    }
+
+    const guest: Guest = {
+      slug: uniqueSlug(name, guests),
+      full_name: name,
+      honorific: honorific.trim() || undefined,
+      events: eventsFromChoice(eventChoice),
+      phone: normalizePhone(phone.trim()) || undefined,
+      viewed: false,
+    };
+
+    await persistGuests([guest, ...guests], `Added ${guest.full_name}.`);
+    setFullName('');
+    setHonorific('');
+    setPhone('');
+    setEventChoice('baraat');
+  };
+
+  const handleDeleteGuest = async (slug: string) => {
+    const target = guests.find((g) => g.slug === slug);
+    if (!target) return;
+    const ok = window.confirm(`Delete invite for ${target.full_name}?`);
+    if (!ok) return;
+    const next = guests.filter((g) => g.slug !== slug);
+    await persistGuests(next, `Deleted ${target.full_name}.`);
+  };
+
   const copyLink = async (slug: string) => {
     const url = inviteUrl(slug);
     try {
@@ -128,7 +204,7 @@ export function AdminPage() {
             Admin
           </p>
           <p className="mt-2 text-center text-sm text-[#6B4A55]/80">
-            Upload guests and copy WhatsApp invite links
+            Manage guests and copy WhatsApp invite links
           </p>
           <form
             onSubmit={handleLogin}
@@ -168,7 +244,7 @@ export function AdminPage() {
               Guest list
             </p>
             <p className="mt-1 text-sm text-[#6B4A55]/80">
-              {guests.length} guests · upload CSV · copy link · WhatsApp
+              {guests.length} guests · add · delete · CSV · WhatsApp
             </p>
           </div>
           <button
@@ -181,10 +257,73 @@ export function AdminPage() {
           </button>
         </header>
 
+        <section className="mt-6 border border-[#3D2430]/10 bg-white/35 p-4 sm:p-5">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#6B4A55]">
+            Add guest manually
+          </p>
+          <form onSubmit={handleAddGuest} className="mt-4 grid gap-3 sm:grid-cols-2">
+            <label className="block text-xs font-semibold uppercase tracking-[0.14em] text-[#6B4A55] sm:col-span-2">
+              Full name *
+              <input
+                type="text"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                className={fieldClass}
+                placeholder="Ahmad & Family"
+                required
+              />
+            </label>
+
+            <label className="block text-xs font-semibold uppercase tracking-[0.14em] text-[#6B4A55]">
+              Honorific
+              <input
+                type="text"
+                value={honorific}
+                onChange={(e) => setHonorific(e.target.value)}
+                className={fieldClass}
+                placeholder="Mr & Mrs"
+              />
+            </label>
+
+            <label className="block text-xs font-semibold uppercase tracking-[0.14em] text-[#6B4A55]">
+              Phone / WhatsApp
+              <input
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                className={fieldClass}
+                placeholder="Optional — 923001234567"
+              />
+            </label>
+
+            <label className="block text-xs font-semibold uppercase tracking-[0.14em] text-[#6B4A55] sm:col-span-2">
+              Event
+              <select
+                value={eventChoice}
+                onChange={(e) => setEventChoice(e.target.value as EventChoice)}
+                className={fieldClass}
+              >
+                <option value="baraat">Baraat</option>
+                <option value="walima">Walima</option>
+                <option value="both">Both</option>
+              </select>
+            </label>
+
+            <button
+              type="submit"
+              disabled={busy || !fullName.trim()}
+              className="inline-flex items-center justify-center gap-2 bg-[#3D2430] px-4 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-[#FBF7F2] disabled:opacity-60 sm:col-span-2"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              {busy ? 'Saving…' : 'Add guest'}
+            </button>
+          </form>
+        </section>
+
         <section className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-          <label className="inline-flex cursor-pointer items-center justify-center gap-2 bg-[#3D2430] px-4 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-[#FBF7F2]">
+          <label className="inline-flex cursor-pointer items-center justify-center gap-2 border border-[#3D2430]/20 bg-white/50 px-4 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-[#3D2430]">
             <Upload className="h-3.5 w-3.5" />
-            {busy ? 'Uploading…' : 'Upload CSV'}
+            {busy ? 'Working…' : 'Upload CSV'}
             <input
               type="file"
               accept=".csv,text/csv"
@@ -218,11 +357,8 @@ export function AdminPage() {
         </section>
 
         <p className="mt-4 text-xs leading-relaxed text-[#6B4A55]/75">
-          Columns: <code className="text-[#3D2430]">full_name, honorific, events, phone</code>
-          . Events: <code className="text-[#3D2430]">baraat</code>,{' '}
-          <code className="text-[#3D2430]">walima</code>, or{' '}
-          <code className="text-[#3D2430]">both</code>. Phone like{' '}
-          <code className="text-[#3D2430]">923001234567</code> (Excel → Save as CSV UTF-8).
+          CSV columns: <code className="text-[#3D2430]">full_name, honorific, events, phone</code>
+          . Phone is optional. Upload replaces the whole list — use the form above to add one-by-one.
         </p>
 
         {message && <p className="mt-3 text-sm text-[#1F4B3F]">{message}</p>}
@@ -245,10 +381,13 @@ export function AdminPage() {
               Loading guests…
             </li>
           ) : filtered.length === 0 ? (
-            <li className="py-10 text-sm text-[#6B4A55]">No guests yet — upload a CSV.</li>
+            <li className="py-10 text-sm text-[#6B4A55]">No guests yet — add one above or upload a CSV.</li>
           ) : (
             filtered.map((g) => (
-              <li key={g.slug} className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between">
+              <li
+                key={g.slug}
+                className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between"
+              >
                 <div className="min-w-0">
                   <p className="truncate text-base text-[#3D2430]">
                     {g.honorific ? `${g.honorific} ` : ''}
@@ -260,7 +399,7 @@ export function AdminPage() {
                     {' · '}/i/{g.slug}
                   </p>
                 </div>
-                <div className="flex shrink-0 gap-2">
+                <div className="flex shrink-0 flex-wrap gap-2">
                   <button
                     type="button"
                     onClick={() => void copyLink(g.slug)}
@@ -283,11 +422,16 @@ export function AdminPage() {
                       <MessageCircle className="h-3.5 w-3.5" />
                       WhatsApp
                     </a>
-                  ) : (
-                    <span className="inline-flex items-center px-3 py-2 text-[11px] uppercase tracking-[0.14em] text-[#6B4A55]/50">
-                      No WhatsApp
-                    </span>
-                  )}
+                  ) : null}
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => void handleDeleteGuest(g.slug)}
+                    className="inline-flex items-center gap-1.5 border border-[#8B2E3C]/30 bg-white/60 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#8B2E3C] disabled:opacity-60"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                    Delete
+                  </button>
                 </div>
               </li>
             ))
