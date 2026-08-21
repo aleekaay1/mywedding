@@ -1,5 +1,13 @@
 export type EventKey = 'baraat' | 'walima';
 
+/** Bride's side (girl's) or groom's side (boy's) RSVP */
+export type RsvpSide = 'bride' | 'groom';
+
+export interface RsvpSettings {
+  bride_number: string;
+  groom_number: string;
+}
+
 export interface WeddingEvent {
   key: EventKey;
   event_name: string;
@@ -18,6 +26,8 @@ export interface Guest {
   events: EventKey[];
   /** WhatsApp number digits, e.g. 923001234567 */
   phone?: string;
+  /** Which RSVP buttons this guest sees (bride and/or groom) */
+  rsvp_sides?: RsvpSide[];
   viewed: boolean;
   custom_message?: string;
 }

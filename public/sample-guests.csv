@@ -1,6 +1,7 @@
-full_name,honorific,events,phone
-Khursheed & Family,Mr & Mrs,both,923001112223
-Alex Paz,Mr,both,923004445556
-Ahmad & Family,Mr & Mrs,baraat,923007778889
-Tariq Malik,Mr,walima,923000001111
-Zainab Khan & Guests,Ms,baraat,923000002222
+full_name,honorific,events,phone,rsvp
+Khursheed & Family,Mr & Mrs,both,923001112223,both
+Alex Paz,Mr,both,923004445556,both
+Ahmad & Family,Mr & Mrs,baraat,923007778889,bride
+Tariq Malik,Mr,walima,923000001111,groom
+Sara Ahmed,Ms,walima,923000003333,bride
+Zainab Khan & Guests,Ms,baraat,923000002222,bride

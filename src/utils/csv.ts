@@ -1,5 +1,19 @@
-import { EventKey, Guest } from '../types';
+import { EventKey, Guest, RsvpSide } from '../types';
+import { defaultRsvpSides } from './guestEvents';
 import { normalizePhone, slugifyName } from './slug';
+
+function parseRsvpSides(raw: string | undefined, events: EventKey[]): RsvpSide[] | undefined {
+  if (!raw?.trim()) return undefined;
+  const v = raw.trim().toLowerCase();
+  if (v === 'both' || v === 'bride,groom' || v === 'bride & groom') return ['bride', 'groom'];
+  if (v === 'bride' || v === 'girl' || v === 'girls') return ['bride'];
+  if (v === 'groom' || v === 'boy' || v === 'boys') return ['groom'];
+  const parts = v.split(/[,|/]+/).map((p) => p.trim());
+  const sides: RsvpSide[] = [];
+  if (parts.some((p) => p === 'bride' || p === 'girl')) sides.push('bride');
+  if (parts.some((p) => p === 'groom' || p === 'boy')) sides.push('groom');
+  return sides.length ? sides : undefined;
+}
 
 function parseEvents(raw: string): EventKey[] {
   const v = raw.trim().toLowerCase();
@@ -66,6 +80,7 @@ export function parseGuestsCsv(text: string): Guest[] {
   const honorI = idx('honorific');
   const phoneI = idx('phone') >= 0 ? idx('phone') : idx('whatsapp');
   const slugI = idx('slug');
+  const rsvpI = idx('rsvp') >= 0 ? idx('rsvp') : idx('rsvp_sides');
 
   if (nameI < 0 || eventsI < 0) {
     throw new Error('CSV must include full_name and events columns.');
@@ -88,12 +103,16 @@ export function parseGuestsCsv(text: string): Guest[] {
     }
     usedSlugs.add(slug);
 
+    const events = parseEvents(cells[eventsI] || 'baraat');
+    const rsvp_sides = parseRsvpSides(rsvpI >= 0 ? cells[rsvpI] : undefined, events);
+
     guests.push({
       slug,
       full_name,
       honorific: honorI >= 0 ? cells[honorI]?.trim() || undefined : undefined,
-      events: parseEvents(cells[eventsI] || 'baraat'),
+      events,
       phone: phoneI >= 0 ? normalizePhone(cells[phoneI]) : undefined,
+      rsvp_sides: rsvp_sides ?? defaultRsvpSides(events),
       viewed: false,
     });
   }

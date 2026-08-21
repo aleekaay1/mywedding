@@ -1,9 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Guest } from '../types';
+import { Guest, RsvpSettings } from '../types';
+import { DEFAULT_RSVP_SETTINGS } from '../data/rsvpDefaults';
 import { getGuestBySlug, markGuestAsViewed } from '../services/guestService';
+import { fetchRsvpSettings } from '../services/settingsService';
 
 interface UseGuestDataResult {
   guest: Guest | null;
+  rsvpSettings: RsvpSettings;
   loading: boolean;
   error: string | null;
   markViewed: () => Promise<void>;
@@ -12,6 +15,7 @@ interface UseGuestDataResult {
 
 export function useGuestData(slug?: string): UseGuestDataResult {
   const [guest, setGuest] = useState<Guest | null>(null);
+  const [rsvpSettings, setRsvpSettings] = useState<RsvpSettings>(DEFAULT_RSVP_SETTINGS);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -27,7 +31,8 @@ export function useGuestData(slug?: string): UseGuestDataResult {
     setError(null);
 
     try {
-      const data = await getGuestBySlug(slug);
+      const [data, settings] = await Promise.all([getGuestBySlug(slug), fetchRsvpSettings()]);
+      setRsvpSettings(settings);
       setGuest(data);
       if (!data) {
         setError(`Invitation for "${slug}" was not found.`);
@@ -59,6 +64,7 @@ export function useGuestData(slug?: string): UseGuestDataResult {
 
   return {
     guest,
+    rsvpSettings,
     loading,
     error,
     markViewed,

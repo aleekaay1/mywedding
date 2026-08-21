@@ -2,9 +2,11 @@ import fs from 'fs';
 import path from 'path';
 import type { IncomingMessage, ServerResponse } from 'http';
 import type { Plugin } from 'vite';
-import type { Guest } from '../src/types';
+import type { Guest, RsvpSettings } from '../src/types';
+import { DEFAULT_RSVP_SETTINGS } from '../src/data/rsvpDefaults';
 
 const DATA_FILE = path.join(process.cwd(), 'data', 'guests.json');
+const SETTINGS_FILE = path.join(process.cwd(), 'data', 'settings.json');
 
 function adminPassword(): string {
   return process.env.ADMIN_PASSWORD || process.env.VITE_ADMIN_PASSWORD || 'wedding2026';
@@ -28,6 +30,24 @@ function readGuests(): Guest[] {
 function writeGuests(guests: Guest[]): void {
   fs.mkdirSync(path.dirname(DATA_FILE), { recursive: true });
   fs.writeFileSync(DATA_FILE, JSON.stringify(guests, null, 2), 'utf8');
+}
+
+function readSettings(): RsvpSettings {
+  try {
+    const raw = fs.readFileSync(SETTINGS_FILE, 'utf8');
+    const parsed = JSON.parse(raw) as Partial<RsvpSettings>;
+    return {
+      bride_number: parsed.bride_number || DEFAULT_RSVP_SETTINGS.bride_number,
+      groom_number: parsed.groom_number || DEFAULT_RSVP_SETTINGS.groom_number,
+    };
+  } catch {
+    return DEFAULT_RSVP_SETTINGS;
+  }
+}
+
+function writeSettings(settings: RsvpSettings): void {
+  fs.mkdirSync(path.dirname(SETTINGS_FILE), { recursive: true });
+  fs.writeFileSync(SETTINGS_FILE, JSON.stringify(settings, null, 2), 'utf8');
 }
 
 async function readBody(req: IncomingMessage): Promise<string> {
@@ -78,6 +98,29 @@ export function guestsApiPlugin(): Plugin {
               }
               writeGuests(body.guests as Guest[]);
               return sendJson(res, 200, { ok: true, count: body.guests.length });
+            }
+          }
+
+          if (url === '/api/settings') {
+            if (req.method === 'GET') {
+              return sendJson(res, 200, { settings: readSettings() });
+            }
+            if (req.method === 'PUT') {
+              if (!isAuthorized(req.headers.authorization)) {
+                return sendJson(res, 401, { error: 'Unauthorized' });
+              }
+              const raw = await readBody(req);
+              const body = raw ? JSON.parse(raw) : {};
+              const current = readSettings();
+              const next: RsvpSettings = {
+                bride_number: String(body.settings?.bride_number ?? current.bride_number).replace(/\D/g, ''),
+                groom_number: String(body.settings?.groom_number ?? current.groom_number).replace(/\D/g, ''),
+              };
+              if (!next.bride_number || !next.groom_number) {
+                return sendJson(res, 400, { error: 'Both RSVP numbers are required.' });
+              }
+              writeSettings(next);
+              return sendJson(res, 200, { ok: true, settings: next });
             }
           }
 

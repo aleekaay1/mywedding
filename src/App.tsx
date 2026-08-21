@@ -27,7 +27,7 @@ export default function App() {
   const [activeSlug, setActiveSlug] = useState<string | null>(getSlugFromLocation);
   const [isOpen, setIsOpen] = useState(false);
 
-  const { guest, loading, error, markViewed } = useGuestData(
+  const { guest, rsvpSettings, loading, error, markViewed } = useGuestData(
     isAdmin ? undefined : (activeSlug ?? undefined),
   );
 
@@ -90,6 +90,7 @@ export default function App() {
                 key={`card-${guest.slug}`}
                 guest={guest}
                 theme={theme}
+                rsvpSettings={rsvpSettings}
                 onReseal={() => setIsOpen(false)}
               />
             )}

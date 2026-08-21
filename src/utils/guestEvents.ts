@@ -1,5 +1,6 @@
-import { EVENTS_BY_KEY, RSVP_BARAAT, RSVP_WALIMA } from '../data/guests';
-import { EventKey, Guest, WeddingEvent } from '../types';
+import { EVENTS_BY_KEY } from '../data/guests';
+import { DEFAULT_RSVP_SETTINGS } from '../data/rsvpDefaults';
+import { EventKey, Guest, RsvpSettings, RsvpSide, WeddingEvent } from '../types';
 
 export function normalizeEvents(events: EventKey[]): EventKey[] {
   const ordered: EventKey[] = [];
@@ -45,38 +46,72 @@ function waLink(number: string, message: string): string {
   return `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
 }
 
-/** Single-event RSVP link (baraat → bride number, walima → groom number). */
-export function getRsvpUrl(guest: Guest): string {
-  const events = normalizeEvents(guest.events);
-  const isWalimaOnly = events.length === 1 && events[0] === 'walima';
-  const eventLabel = isWalimaOnly ? 'Walima' : 'Baraat';
-  const number = isWalimaOnly ? RSVP_WALIMA : RSVP_BARAAT;
-  const text = `Assalamu Alaikum! ${guestLabel(guest)} warmly confirms attendance for the ${eventLabel}.`;
-  return waLink(number, text);
+/** Default RSVP sides when not set on the guest */
+export function defaultRsvpSides(events: EventKey[]): RsvpSide[] {
+  const normalized = normalizeEvents(events);
+  if (normalized.length === 2) return ['bride', 'groom'];
+  if (normalized[0] === 'walima') return ['groom'];
+  return ['bride'];
 }
 
-/** Dual-event: separate RSVP links for bride's side (Baraat) and groom's side (Walima). */
-export function getDualRsvpLinks(guest: Guest): {
-  bride: { href: string; label: string };
-  groom: { href: string; label: string };
-} {
+export function resolveRsvpSides(guest: Guest): RsvpSide[] {
+  if (guest.rsvp_sides?.length) {
+    const sides: RsvpSide[] = [];
+    if (guest.rsvp_sides.includes('bride')) sides.push('bride');
+    if (guest.rsvp_sides.includes('groom')) sides.push('groom');
+    if (sides.length) return sides;
+  }
+  return defaultRsvpSides(guest.events);
+}
+
+function rsvpEventLabel(guest: Guest, side: RsvpSide): string {
+  const events = normalizeEvents(guest.events);
+  if (side === 'bride') {
+    return events.includes('baraat') ? 'Baraat' : 'Walima';
+  }
+  return 'Walima';
+}
+
+export interface GuestRsvpLink {
+  side: RsvpSide;
+  label: string;
+  href: string;
+}
+
+/** RSVP buttons for a guest — only the sides selected in admin */
+export function getGuestRsvpLinks(
+  guest: Guest,
+  settings: RsvpSettings = DEFAULT_RSVP_SETTINGS,
+): GuestRsvpLink[] {
+  const sides = resolveRsvpSides(guest);
   const label = guestLabel(guest);
-  return {
-    bride: {
-      label: "Bride's Side",
+  const links: GuestRsvpLink[] = [];
+
+  if (sides.includes('bride')) {
+    const eventLabel = rsvpEventLabel(guest, 'bride');
+    links.push({
+      side: 'bride',
+      label: sides.length > 1 ? "Bride's Side" : 'RSVP on WhatsApp',
       href: waLink(
-        RSVP_BARAAT,
-        `Assalamu Alaikum! ${label} warmly confirms attendance for the Baraat.`,
+        settings.bride_number,
+        `Assalamu Alaikum! ${label} warmly confirms attendance for the ${eventLabel}.`,
       ),
-    },
-    groom: {
-      label: "Groom's Side",
+    });
+  }
+
+  if (sides.includes('groom')) {
+    const eventLabel = rsvpEventLabel(guest, 'groom');
+    links.push({
+      side: 'groom',
+      label: sides.length > 1 ? "Groom's Side" : 'RSVP on WhatsApp',
       href: waLink(
-        RSVP_WALIMA,
-        `Assalamu Alaikum! ${label} warmly confirms attendance for the Walima.`,
+        settings.groom_number,
+        `Assalamu Alaikum! ${label} warmly confirms attendance for the ${eventLabel}.`,
       ),
-    },
-  };
+    });
+  }
+
+  return links;
 }
 
 /** Theme accent: walima-only emerald; otherwise bride maroon (including both). */

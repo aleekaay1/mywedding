@@ -1,13 +1,12 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { Guest, ThemeColors, WeddingEvent } from '../types';
+import { Guest, RsvpSettings, ThemeColors, WeddingEvent } from '../types';
 import { InvitationShell } from './InvitationShell';
 import { getDateParts } from '../utils/dateParts';
 import {
   getCoupleLine,
-  getDualRsvpLinks,
+  getGuestRsvpLinks,
   getInvitePhrase,
-  getRsvpUrl,
   isBothEvents,
   resolveGuestEvents,
 } from '../utils/guestEvents';
@@ -16,6 +15,7 @@ import { OrnamentDivider } from './OrnamentDivider';
 interface InvitationCardProps {
   guest: Guest;
   theme: ThemeColors;
+  rsvpSettings: RsvpSettings;
   onReseal?: () => void;
 }
 
@@ -85,13 +85,12 @@ const SingleEventBlock: React.FC<{ event: WeddingEvent }> = ({ event }) => {
   );
 };
 
-export const InvitationCard: React.FC<InvitationCardProps> = ({ guest, onReseal }) => {
+export const InvitationCard: React.FC<InvitationCardProps> = ({ guest, rsvpSettings, onReseal }) => {
   const events = resolveGuestEvents(guest);
   const both = isBothEvents(guest);
   const coupleLine = getCoupleLine(guest);
   const invitePhrase = getInvitePhrase(guest);
-  const rsvpUrl = getRsvpUrl(guest);
-  const dualRsvp = both ? getDualRsvpLinks(guest) : null;
+  const rsvpLinks = getGuestRsvpLinks(guest, rsvpSettings);
   const single = events[0];
 
   return (
@@ -174,40 +173,35 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({ guest, onReseal 
               both ? 'mt-2 max-w-[280px]' : 'mt-3.5 max-w-[230px] gap-2 sm:mt-4 sm:max-w-[240px]'
             }`}
           >
-            {both && dualRsvp ? (
+            {rsvpLinks.length > 1 ? (
               <>
                 <p className="font-label text-[8px] uppercase tracking-[0.2em] text-[#5C4634]">
                   Confirm RSVP
                 </p>
                 <div className="flex w-full gap-2">
-                  <a
-                    href={dualRsvp.bride.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex h-9 flex-1 items-center justify-center border border-[#3B2A1E] bg-transparent px-2 text-[8px] font-label font-medium uppercase tracking-[0.1em] text-[#3B2A1E] leading-tight text-center transition-colors hover:bg-[#3B2A1E] hover:text-[#FBF7F0]"
-                  >
-                    {dualRsvp.bride.label}
-                  </a>
-                  <a
-                    href={dualRsvp.groom.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex h-9 flex-1 items-center justify-center border border-[#3B2A1E] bg-transparent px-2 text-[8px] font-label font-medium uppercase tracking-[0.1em] text-[#3B2A1E] leading-tight text-center transition-colors hover:bg-[#3B2A1E] hover:text-[#FBF7F0]"
-                  >
-                    {dualRsvp.groom.label}
-                  </a>
+                  {rsvpLinks.map((link) => (
+                    <a
+                      key={link.side}
+                      href={link.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex h-9 flex-1 items-center justify-center border border-[#3B2A1E] bg-transparent px-2 text-[8px] font-label font-medium uppercase tracking-[0.1em] text-[#3B2A1E] leading-tight text-center transition-colors hover:bg-[#3B2A1E] hover:text-[#FBF7F0]"
+                    >
+                      {link.label}
+                    </a>
+                  ))}
                 </div>
               </>
-            ) : (
+            ) : rsvpLinks.length === 1 ? (
               <a
-                href={rsvpUrl}
+                href={rsvpLinks[0].href}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex h-10 w-full items-center justify-center rounded-full bg-[#6B3A4A] text-[11px] font-label font-medium uppercase tracking-[0.12em] text-white leading-none"
               >
-                RSVP on WhatsApp
+                {rsvpLinks[0].label}
               </a>
-            )}
+            ) : null}
 
             {!both && single && (
               <a

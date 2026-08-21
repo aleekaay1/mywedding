@@ -6,19 +6,23 @@ import {
   Loader2,
   LogOut,
   MessageCircle,
+  Pencil,
   Plus,
   RefreshCw,
   Trash2,
   Upload,
 } from 'lucide-react';
-import { EventKey, Guest } from '../types';
+import { EventKey, Guest, RsvpSettings, RsvpSide } from '../types';
 import { parseGuestsCsv, inviteUrl, whatsappInviteUrl } from '../utils/csv';
+import { defaultRsvpSides, resolveRsvpSides } from '../utils/guestEvents';
 import { normalizePhone, slugifyName } from '../utils/slug';
 import {
   fetchAllGuests,
   loginAdmin,
   replaceAllGuests,
 } from '../services/guestService';
+import { fetchRsvpSettings, saveRsvpSettings } from '../services/settingsService';
+import { DEFAULT_RSVP_SETTINGS } from '../data/rsvpDefaults';
 
 const TOKEN_KEY = 'wedding_admin_token';
 
@@ -37,9 +41,25 @@ function eventsFromChoice(choice: EventChoice): EventKey[] {
   return [choice];
 }
 
-function uniqueSlug(name: string, existing: Guest[]): string {
+function rsvpSidesLabel(guest: Guest): string {
+  const sides = resolveRsvpSides(guest);
+  if (sides.length === 2) return 'RSVP: both';
+  if (sides[0] === 'bride') return 'RSVP: bride';
+  return 'RSVP: groom';
+}
+
+function sidesFromCheckboxes(bride: boolean, groom: boolean): RsvpSide[] {
+  const sides: RsvpSide[] = [];
+  if (bride) sides.push('bride');
+  if (groom) sides.push('groom');
+  return sides;
+}
+
+function uniqueSlug(name: string, existing: Guest[], skipSlug?: string): string {
   let slug = slugifyName(name) || 'guest';
-  const used = new Set(existing.map((g) => g.slug.toLowerCase()));
+  const used = new Set(
+    existing.filter((g) => g.slug !== skipSlug).map((g) => g.slug.toLowerCase()),
+  );
   if (!used.has(slug)) return slug;
   let n = 2;
   while (used.has(`${slug}-${n}`)) n++;
@@ -67,23 +87,50 @@ export function AdminPage() {
   const [honorific, setHonorific] = useState('');
   const [phone, setPhone] = useState('');
   const [eventChoice, setEventChoice] = useState<EventChoice>('baraat');
+  const [rsvpBride, setRsvpBride] = useState(true);
+  const [rsvpGroom, setRsvpGroom] = useState(false);
+  const [editingSlug, setEditingSlug] = useState<string | null>(null);
 
-  const loadGuests = useCallback(async () => {
+  const [rsvpSettings, setRsvpSettings] = useState<RsvpSettings>(DEFAULT_RSVP_SETTINGS);
+  const [brideRsvpNumber, setBrideRsvpNumber] = useState(DEFAULT_RSVP_SETTINGS.bride_number);
+  const [groomRsvpNumber, setGroomRsvpNumber] = useState(DEFAULT_RSVP_SETTINGS.groom_number);
+
+  const applyEventDefaults = (choice: EventChoice) => {
+    const events = eventsFromChoice(choice);
+    const defaults = defaultRsvpSides(events);
+    setRsvpBride(defaults.includes('bride'));
+    setRsvpGroom(defaults.includes('groom'));
+  };
+
+  const resetGuestForm = () => {
+    setFullName('');
+    setHonorific('');
+    setPhone('');
+    setEventChoice('baraat');
+    setRsvpBride(true);
+    setRsvpGroom(false);
+    setEditingSlug(null);
+  };
+
+  const loadAdminData = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const list = await fetchAllGuests();
+      const [list, settings] = await Promise.all([fetchAllGuests(), fetchRsvpSettings()]);
       setGuests(list);
+      setRsvpSettings(settings);
+      setBrideRsvpNumber(settings.bride_number);
+      setGroomRsvpNumber(settings.groom_number);
     } catch {
-      setError('Could not load guests.');
+      setError('Could not load admin data.');
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    if (token) void loadGuests();
-  }, [token, loadGuests]);
+    if (token) void loadAdminData();
+  }, [token, loadAdminData]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -152,28 +199,94 @@ export function AdminPage() {
     }
   };
 
-  const handleAddGuest = async (e: React.FormEvent) => {
+  const handleSaveRsvpNumbers = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!token) return;
+    setBusy(true);
+    setError(null);
+    setMessage(null);
+    try {
+      const saved = await saveRsvpSettings(
+        {
+          bride_number: normalizePhone(brideRsvpNumber) || brideRsvpNumber.replace(/\D/g, ''),
+          groom_number: normalizePhone(groomRsvpNumber) || groomRsvpNumber.replace(/\D/g, ''),
+        },
+        token,
+      );
+      setRsvpSettings(saved);
+      setBrideRsvpNumber(saved.bride_number);
+      setGroomRsvpNumber(saved.groom_number);
+      setMessage('RSVP WhatsApp numbers updated.');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not save RSVP numbers.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const buildGuestFromForm = (): Guest | null => {
     const name = fullName.trim();
     if (!name) {
       setError('Name is required.');
-      return;
+      return null;
     }
 
-    const guest: Guest = {
-      slug: uniqueSlug(name, guests),
+    const rsvp_sides = sidesFromCheckboxes(rsvpBride, rsvpGroom);
+    if (!rsvp_sides.length) {
+      setError('Select at least one RSVP button (bride or groom).');
+      return null;
+    }
+
+    const events = eventsFromChoice(eventChoice);
+    const existing = editingSlug ? guests.find((g) => g.slug === editingSlug) : undefined;
+
+    return {
+      slug: editingSlug || uniqueSlug(name, guests),
       full_name: name,
       honorific: honorific.trim() || undefined,
-      events: eventsFromChoice(eventChoice),
+      events,
       phone: normalizePhone(phone.trim()) || undefined,
-      viewed: false,
+      rsvp_sides,
+      viewed: existing?.viewed ?? false,
     };
+  };
 
-    await persistGuests([guest, ...guests], `Added ${guest.full_name}.`);
-    setFullName('');
-    setHonorific('');
-    setPhone('');
-    setEventChoice('baraat');
+  const handleSaveGuest = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const guest = buildGuestFromForm();
+    if (!guest) return;
+
+    const next = editingSlug
+      ? guests.map((g) => (g.slug === editingSlug ? guest : g))
+      : [guest, ...guests];
+
+    await persistGuests(
+      next,
+      editingSlug ? `Updated ${guest.full_name}.` : `Added ${guest.full_name}.`,
+    );
+    resetGuestForm();
+  };
+
+  const handleEditGuest = (guest: Guest) => {
+    const events = guest.events;
+    const choice: EventChoice =
+      events.includes('baraat') && events.includes('walima')
+        ? 'both'
+        : events.includes('walima')
+          ? 'walima'
+          : 'baraat';
+    const sides = resolveRsvpSides(guest);
+
+    setEditingSlug(guest.slug);
+    setFullName(guest.full_name);
+    setHonorific(guest.honorific || '');
+    setPhone(guest.phone || '');
+    setEventChoice(choice);
+    setRsvpBride(sides.includes('bride'));
+    setRsvpGroom(sides.includes('groom'));
+    setMessage(null);
+    setError(null);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleDeleteGuest = async (slug: string) => {
@@ -259,9 +372,49 @@ export function AdminPage() {
 
         <section className="mt-6 border border-[#3D2430]/10 bg-white/35 p-4 sm:p-5">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#6B4A55]">
-            Add guest manually
+            RSVP WhatsApp numbers
           </p>
-          <form onSubmit={handleAddGuest} className="mt-4 grid gap-3 sm:grid-cols-2">
+          <p className="mt-1 text-xs text-[#6B4A55]/75">
+            Bride = girl&apos;s side · Groom = boy&apos;s side. Used on invite RSVP buttons.
+          </p>
+          <form onSubmit={handleSaveRsvpNumbers} className="mt-4 grid gap-3 sm:grid-cols-2">
+            <label className="block text-xs font-semibold uppercase tracking-[0.14em] text-[#6B4A55]">
+              Bride RSVP number
+              <input
+                type="tel"
+                value={brideRsvpNumber}
+                onChange={(e) => setBrideRsvpNumber(e.target.value)}
+                className={fieldClass}
+                placeholder="923325017233"
+                required
+              />
+            </label>
+            <label className="block text-xs font-semibold uppercase tracking-[0.14em] text-[#6B4A55]">
+              Groom RSVP number
+              <input
+                type="tel"
+                value={groomRsvpNumber}
+                onChange={(e) => setGroomRsvpNumber(e.target.value)}
+                className={fieldClass}
+                placeholder="923145248496"
+                required
+              />
+            </label>
+            <button
+              type="submit"
+              disabled={busy}
+              className="inline-flex items-center justify-center gap-2 border border-[#3D2430]/20 bg-white/60 px-4 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-[#3D2430] disabled:opacity-60 sm:col-span-2"
+            >
+              {busy ? 'Saving…' : 'Save RSVP numbers'}
+            </button>
+          </form>
+        </section>
+
+        <section className="mt-6 border border-[#3D2430]/10 bg-white/35 p-4 sm:p-5">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#6B4A55]">
+            {editingSlug ? 'Edit guest' : 'Add guest manually'}
+          </p>
+          <form onSubmit={handleSaveGuest} className="mt-4 grid gap-3 sm:grid-cols-2">
             <label className="block text-xs font-semibold uppercase tracking-[0.14em] text-[#6B4A55] sm:col-span-2">
               Full name *
               <input
@@ -300,7 +453,11 @@ export function AdminPage() {
               Event
               <select
                 value={eventChoice}
-                onChange={(e) => setEventChoice(e.target.value as EventChoice)}
+                onChange={(e) => {
+                  const choice = e.target.value as EventChoice;
+                  setEventChoice(choice);
+                  if (!editingSlug) applyEventDefaults(choice);
+                }}
                 className={fieldClass}
               >
                 <option value="baraat">Baraat</option>
@@ -309,14 +466,54 @@ export function AdminPage() {
               </select>
             </label>
 
-            <button
-              type="submit"
-              disabled={busy || !fullName.trim()}
-              className="inline-flex items-center justify-center gap-2 bg-[#3D2430] px-4 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-[#FBF7F2] disabled:opacity-60 sm:col-span-2"
-            >
-              <Plus className="h-3.5 w-3.5" />
-              {busy ? 'Saving…' : 'Add guest'}
-            </button>
+            <fieldset className="sm:col-span-2">
+              <legend className="text-xs font-semibold uppercase tracking-[0.14em] text-[#6B4A55]">
+                Show RSVP buttons on invite
+              </legend>
+              <div className="mt-2 flex flex-wrap gap-4">
+                <label className="inline-flex items-center gap-2 text-sm text-[#3D2430]">
+                  <input
+                    type="checkbox"
+                    checked={rsvpBride}
+                    onChange={(e) => setRsvpBride(e.target.checked)}
+                    className="h-4 w-4 accent-[#6B3A4A]"
+                  />
+                  Bride (girl&apos;s side)
+                </label>
+                <label className="inline-flex items-center gap-2 text-sm text-[#3D2430]">
+                  <input
+                    type="checkbox"
+                    checked={rsvpGroom}
+                    onChange={(e) => setRsvpGroom(e.target.checked)}
+                    className="h-4 w-4 accent-[#6B3A4A]"
+                  />
+                  Groom (boy&apos;s side)
+                </label>
+              </div>
+              <p className="mt-1.5 text-xs text-[#6B4A55]/75">
+                Walima from girl&apos;s side → bride only. Boy&apos;s side → groom only. Both events → check both.
+              </p>
+            </fieldset>
+
+            <div className="flex flex-wrap gap-2 sm:col-span-2">
+              <button
+                type="submit"
+                disabled={busy || !fullName.trim()}
+                className="inline-flex items-center justify-center gap-2 bg-[#3D2430] px-4 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-[#FBF7F2] disabled:opacity-60"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                {busy ? 'Saving…' : editingSlug ? 'Save changes' : 'Add guest'}
+              </button>
+              {editingSlug && (
+                <button
+                  type="button"
+                  onClick={resetGuestForm}
+                  className="inline-flex items-center justify-center gap-2 border border-[#3D2430]/20 bg-white/60 px-4 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-[#3D2430]"
+                >
+                  Cancel edit
+                </button>
+              )}
+            </div>
           </form>
         </section>
 
@@ -348,7 +545,7 @@ export function AdminPage() {
 
           <button
             type="button"
-            onClick={() => void loadGuests()}
+            onClick={() => void loadAdminData()}
             className="inline-flex items-center justify-center gap-2 border border-[#3D2430]/20 bg-white/50 px-4 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-[#3D2430]"
           >
             <RefreshCw className="h-3.5 w-3.5" />
@@ -357,8 +554,11 @@ export function AdminPage() {
         </section>
 
         <p className="mt-4 text-xs leading-relaxed text-[#6B4A55]/75">
-          CSV columns: <code className="text-[#3D2430]">full_name, honorific, events, phone</code>
-          . Phone is optional. Upload replaces the whole list — use the form above to add one-by-one.
+          CSV columns: <code className="text-[#3D2430]">full_name, honorific, events, phone, rsvp</code>
+          . Phone is optional. <code className="text-[#3D2430]">rsvp</code> ={' '}
+          <code className="text-[#3D2430]">bride</code>,{' '}
+          <code className="text-[#3D2430]">groom</code>, or{' '}
+          <code className="text-[#3D2430]">both</code>. Upload replaces the whole list.
         </p>
 
         {message && <p className="mt-3 text-sm text-[#1F4B3F]">{message}</p>}
@@ -394,7 +594,7 @@ export function AdminPage() {
                     {g.full_name}
                   </p>
                   <p className="mt-0.5 text-xs text-[#6B4A55]/80">
-                    {eventLabel(g.events)}
+                    {eventLabel(g.events)} · {rsvpSidesLabel(g)}
                     {g.phone ? ` · ${g.phone}` : ' · no phone'}
                     {' · '}/i/{g.slug}
                   </p>
@@ -423,6 +623,15 @@ export function AdminPage() {
                       WhatsApp
                     </a>
                   ) : null}
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => handleEditGuest(g)}
+                    className="inline-flex items-center gap-1.5 border border-[#3D2430]/20 bg-white/60 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#3D2430] disabled:opacity-60"
+                  >
+                    <Pencil className="h-3.5 w-3.5" />
+                    Edit
+                  </button>
                   <button
                     type="button"
                     disabled={busy}
