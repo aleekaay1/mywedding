@@ -143,6 +143,20 @@ export function AdminPage() {
     );
   }, [guests, query]);
 
+  const eventCounts = useMemo(() => {
+    let baraat = 0;
+    let walima = 0;
+    let both = 0;
+    for (const guest of guests) {
+      const hasBaraat = guest.events.includes('baraat');
+      const hasWalima = guest.events.includes('walima');
+      if (hasBaraat) baraat++;
+      if (hasWalima) walima++;
+      if (hasBaraat && hasWalima) both++;
+    }
+    return { baraat, walima, both, total: guests.length };
+  }, [guests]);
+
   const persistGuests = async (next: Guest[], successMsg: string) => {
     if (!token) return;
     setBusy(true);
@@ -369,6 +383,30 @@ export function AdminPage() {
             Log out
           </button>
         </header>
+
+        <section className="mt-6 grid grid-cols-2 gap-3 sm:gap-4">
+          <div className="border border-[#6B3A4A]/20 bg-white/50 px-4 py-4 text-center">
+            <p className="text-3xl font-semibold tabular-nums text-[#6B3A4A]">
+              {loading ? '—' : eventCounts.baraat}
+            </p>
+            <p className="mt-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#6B4A55]">
+              Baraat invited
+            </p>
+          </div>
+          <div className="border border-[#1F4B3F]/20 bg-white/50 px-4 py-4 text-center">
+            <p className="text-3xl font-semibold tabular-nums text-[#1F4B3F]">
+              {loading ? '—' : eventCounts.walima}
+            </p>
+            <p className="mt-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#6B4A55]">
+              Walima invited
+            </p>
+          </div>
+          {!loading && eventCounts.both > 0 && (
+            <p className="col-span-2 text-center text-xs text-[#6B4A55]/75">
+              {eventCounts.both} invited to both · {eventCounts.total} total guests
+            </p>
+          )}
+        </section>
 
         <section className="mt-6 border border-[#3D2430]/10 bg-white/35 p-4 sm:p-5">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#6B4A55]">
