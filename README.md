@@ -3,7 +3,7 @@
 Personalized digital wedding invitations for Ali Shah & Ammara Saleem. Each guest receives a unique link that opens a sealed envelope and reveals event details with RSVP.
 
 - **Baraat** — Friday, October 23, 2026 · 7:00 PM · Paramount Marquee, Islamabad
-- **Walima** — Saturday, October 24, 2026 · 7:00 PM · Reet Marquee, Khanna Pull, Islamabad
+- **Walima** — Saturday, October 24, 2026 · 5:00 PM · Reet Marquee, Khanna Pull, Islamabad
 
 ## Quick start
 
