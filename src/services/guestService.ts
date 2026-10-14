@@ -1,8 +1,8 @@
 import { Guest } from '../types';
 import { GUESTS } from '../data/guests';
 
-const LOCAL_CACHE_KEY = 'wedding_invitations_guests_v7';
-const VIEWED_KEY = 'wedding_invitations_viewed_v7';
+const LOCAL_CACHE_KEY = 'wedding_invitations_guests_v8';
+const VIEWED_KEY = 'wedding_invitations_viewed_v8';
 
 function readLocalCache(): Guest[] | null {
   try {

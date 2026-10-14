@@ -9,7 +9,8 @@ export const BARAAT: WeddingEvent = {
   key: 'baraat',
   event_name: 'Baraat',
   event_date: 'Friday, October 23, 2026',
-  event_time: '7:00 PM Onwards',
+  /** Default prompt time — assign 6:00 PM to specific guests in admin. */
+  event_time: '5:00 PM Onwards',
   venue_name: 'Paramount Marquee',
   venue_address:
     'PSO Petrol Pump (Dhaniyal Petroleum), Main Lehtarar Road, Jhang Sayedan, Opp Eden Life Society, Islamabad',
@@ -21,7 +22,7 @@ export const WALIMA: WeddingEvent = {
   key: 'walima',
   event_name: 'Walima',
   event_date: 'Saturday, October 24, 2026',
-  event_time: '5:00 PM Onwards',
+  event_time: '7:00 PM Onwards',
   venue_name: 'Reet Marquee',
   venue_address: 'Near Khana Pull, Service Road East, Street No. 2, Khanna, Islamabad',
   maps_url:

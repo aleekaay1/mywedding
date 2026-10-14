@@ -1,5 +1,5 @@
 import { EventKey, Guest, RsvpSide } from '../types';
-import { defaultRsvpSides } from './guestEvents';
+import { defaultRsvpSides, normalizeEventTime } from './guestEvents';
 import { normalizePhone, slugifyName } from './slug';
 
 function parseRsvpSides(raw: string | undefined, events: EventKey[]): RsvpSide[] | undefined {
@@ -81,6 +81,8 @@ export function parseGuestsCsv(text: string): Guest[] {
   const phoneI = idx('phone') >= 0 ? idx('phone') : idx('whatsapp');
   const slugI = idx('slug');
   const rsvpI = idx('rsvp') >= 0 ? idx('rsvp') : idx('rsvp_sides');
+  const baraatTimeI =
+    idx('baraat_time') >= 0 ? idx('baraat_time') : idx('event_time');
 
   if (nameI < 0 || eventsI < 0) {
     throw new Error('CSV must include full_name and events columns.');
@@ -105,6 +107,11 @@ export function parseGuestsCsv(text: string): Guest[] {
 
     const events = parseEvents(cells[eventsI] || 'baraat');
     const rsvp_sides = parseRsvpSides(rsvpI >= 0 ? cells[rsvpI] : undefined, events);
+    const baraatRaw = baraatTimeI >= 0 ? cells[baraatTimeI]?.trim() : '';
+    const event_times =
+      baraatRaw && events.includes('baraat')
+        ? { baraat: normalizeEventTime(baraatRaw) }
+        : undefined;
 
     guests.push({
       slug,
@@ -113,6 +120,7 @@ export function parseGuestsCsv(text: string): Guest[] {
       events,
       phone: phoneI >= 0 ? normalizePhone(cells[phoneI]) : undefined,
       rsvp_sides: rsvp_sides ?? defaultRsvpSides(events),
+      event_times,
       viewed: false,
     });
   }

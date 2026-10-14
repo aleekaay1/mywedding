@@ -13,8 +13,15 @@ import {
   Upload,
 } from 'lucide-react';
 import { EventKey, Guest, RsvpSettings, RsvpSide } from '../types';
+import { EVENTS_BY_KEY } from '../data/guests';
 import { parseGuestsCsv, inviteUrl, whatsappInviteUrl } from '../utils/csv';
-import { defaultRsvpSides, resolveRsvpSides } from '../utils/guestEvents';
+import {
+  defaultRsvpSides,
+  getGuestEventTime,
+  normalizeEventTime,
+  resolveRsvpSides,
+  withEventTime,
+} from '../utils/guestEvents';
 import { normalizePhone, slugifyName } from '../utils/slug';
 import {
   fetchAllGuests,
@@ -28,12 +35,19 @@ const TOKEN_KEY = 'wedding_admin_token';
 
 type EventChoice = 'baraat' | 'walima' | 'both';
 
+/** Quick picks for Baraat arrival groups (nikah at 6). */
+const TIME_PRESETS = ['5:00 PM Onwards', '6:00 PM Onwards'] as const;
+
 function eventLabel(events: Guest['events']): string {
   const hasB = events.includes('baraat');
   const hasW = events.includes('walima');
   if (hasB && hasW) return 'Both';
   if (hasW) return 'Walima';
   return 'Baraat';
+}
+
+function shortTime(time: string): string {
+  return time.replace(/\s*Onwards/i, '').trim();
 }
 
 function eventsFromChoice(choice: EventChoice): EventKey[] {
@@ -82,6 +96,12 @@ export function AdminPage() {
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState('');
   const [copiedSlug, setCopiedSlug] = useState<string | null>(null);
+  const [selectedSlugs, setSelectedSlugs] = useState<Set<string>>(() => new Set());
+  const [bulkEvent, setBulkEvent] = useState<EventKey>('baraat');
+  const [bulkTimeSelected, setBulkTimeSelected] = useState<string>(TIME_PRESETS[0]);
+  const [bulkTimeOthers, setBulkTimeOthers] = useState<string>(TIME_PRESETS[1]);
+  const [bulkCustomSelected, setBulkCustomSelected] = useState('');
+  const [bulkCustomOthers, setBulkCustomOthers] = useState('');
 
   const [fullName, setFullName] = useState('');
   const [honorific, setHonorific] = useState('');
@@ -89,6 +109,7 @@ export function AdminPage() {
   const [eventChoice, setEventChoice] = useState<EventChoice>('baraat');
   const [rsvpBride, setRsvpBride] = useState(true);
   const [rsvpGroom, setRsvpGroom] = useState(false);
+  const [guestBaraatTime, setGuestBaraatTime] = useState('');
   const [editingSlug, setEditingSlug] = useState<string | null>(null);
 
   const [rsvpSettings, setRsvpSettings] = useState<RsvpSettings>(DEFAULT_RSVP_SETTINGS);
@@ -109,7 +130,18 @@ export function AdminPage() {
     setEventChoice('baraat');
     setRsvpBride(true);
     setRsvpGroom(false);
+    setGuestBaraatTime('');
     setEditingSlug(null);
+  };
+
+  const resolveBulkTime = (preset: string, custom: string): string | null => {
+    if (preset === '__clear__') return null;
+    if (preset === '__custom__') {
+      const t = custom.trim();
+      if (!t) throw new Error('Enter a custom time.');
+      return normalizeEventTime(t);
+    }
+    return normalizeEventTime(preset);
   };
 
   const loadAdminData = useCallback(async () => {
@@ -254,15 +286,25 @@ export function AdminPage() {
     const events = eventsFromChoice(eventChoice);
     const existing = editingSlug ? guests.find((g) => g.slug === editingSlug) : undefined;
 
-    return {
+    let guest: Guest = {
       slug: editingSlug || uniqueSlug(name, guests),
       full_name: name,
       honorific: honorific.trim() || undefined,
       events,
       phone: normalizePhone(phone.trim()) || undefined,
       rsvp_sides,
+      event_times: existing?.event_times,
       viewed: existing?.viewed ?? false,
+      custom_message: existing?.custom_message,
     };
+
+    if (events.includes('baraat')) {
+      guest = withEventTime(guest, 'baraat', guestBaraatTime.trim() || null);
+    } else if (guest.event_times?.baraat) {
+      guest = withEventTime(guest, 'baraat', null);
+    }
+
+    return guest;
   };
 
   const handleSaveGuest = async (e: React.FormEvent) => {
@@ -298,6 +340,7 @@ export function AdminPage() {
     setEventChoice(choice);
     setRsvpBride(sides.includes('bride'));
     setRsvpGroom(sides.includes('groom'));
+    setGuestBaraatTime(guest.event_times?.baraat ? shortTime(guest.event_times.baraat) : '');
     setMessage(null);
     setError(null);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -309,7 +352,78 @@ export function AdminPage() {
     const ok = window.confirm(`Delete invite for ${target.full_name}?`);
     if (!ok) return;
     const next = guests.filter((g) => g.slug !== slug);
+    setSelectedSlugs((prev) => {
+      const n = new Set(prev);
+      n.delete(slug);
+      return n;
+    });
     await persistGuests(next, `Deleted ${target.full_name}.`);
+  };
+
+  const toggleSelected = (slug: string) => {
+    setSelectedSlugs((prev) => {
+      const next = new Set(prev);
+      if (next.has(slug)) next.delete(slug);
+      else next.add(slug);
+      return next;
+    });
+  };
+
+  const selectAllFiltered = () => {
+    setSelectedSlugs(new Set(filtered.map((g) => g.slug)));
+  };
+
+  const clearSelection = () => setSelectedSlugs(new Set());
+
+  const applyTimesToGuests = async (mode: 'selected' | 'others' | 'both') => {
+    if (!token) return;
+    try {
+      const selectedTime =
+        mode === 'others' ? undefined : resolveBulkTime(bulkTimeSelected, bulkCustomSelected);
+      const othersTime =
+        mode === 'selected' ? undefined : resolveBulkTime(bulkTimeOthers, bulkCustomOthers);
+
+      let selectedCount = 0;
+      let othersCount = 0;
+      const next = guests.map((g) => {
+        if (!g.events.includes(bulkEvent)) return g;
+        const isSelected = selectedSlugs.has(g.slug);
+        if (isSelected && mode !== 'others') {
+          selectedCount++;
+          return withEventTime(g, bulkEvent, selectedTime ?? null);
+        }
+        if (!isSelected && mode !== 'selected') {
+          othersCount++;
+          return withEventTime(g, bulkEvent, othersTime ?? null);
+        }
+        return g;
+      });
+
+      if (mode !== 'others' && selectedCount === 0) {
+        setError('Select at least one guest first.');
+        return;
+      }
+      if (mode !== 'selected' && othersCount === 0 && mode === 'others') {
+        setError('No other guests invited to this event.');
+        return;
+      }
+
+      const eventName = EVENTS_BY_KEY[bulkEvent].event_name;
+      const parts: string[] = [];
+      if (mode !== 'others') {
+        parts.push(
+          `${selectedCount} selected → ${selectedTime ? shortTime(selectedTime) : 'default'}`,
+        );
+      }
+      if (mode !== 'selected') {
+        parts.push(
+          `${othersCount} others → ${othersTime ? shortTime(othersTime) : 'default'}`,
+        );
+      }
+      await persistGuests(next, `${eventName} times updated (${parts.join('; ')}).`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not apply times.');
+    }
   };
 
   const copyLink = async (slug: string) => {
@@ -504,6 +618,55 @@ export function AdminPage() {
               </select>
             </label>
 
+            {(eventChoice === 'baraat' || eventChoice === 'both') && (
+              <label className="block text-xs font-semibold uppercase tracking-[0.14em] text-[#6B4A55] sm:col-span-2">
+                Baraat arrival time (optional)
+                <select
+                  value={
+                    !guestBaraatTime
+                      ? ''
+                      : TIME_PRESETS.some(
+                            (p) => shortTime(p).toLowerCase() === guestBaraatTime.toLowerCase(),
+                          )
+                        ? TIME_PRESETS.find(
+                            (p) => shortTime(p).toLowerCase() === guestBaraatTime.toLowerCase(),
+                          )!
+                        : '__custom__'
+                  }
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    if (v === '') setGuestBaraatTime('');
+                    else if (v === '__custom__') setGuestBaraatTime(guestBaraatTime || '5:00 PM');
+                    else setGuestBaraatTime(shortTime(v));
+                  }}
+                  className={fieldClass}
+                >
+                  <option value="">Default ({shortTime(EVENTS_BY_KEY.baraat.event_time)})</option>
+                  {TIME_PRESETS.map((t) => (
+                    <option key={t} value={t}>
+                      {shortTime(t)}
+                    </option>
+                  ))}
+                  <option value="__custom__">Custom…</option>
+                </select>
+                {guestBaraatTime &&
+                  !TIME_PRESETS.some(
+                    (p) => shortTime(p).toLowerCase() === guestBaraatTime.toLowerCase(),
+                  ) && (
+                    <input
+                      type="text"
+                      value={guestBaraatTime}
+                      onChange={(e) => setGuestBaraatTime(e.target.value)}
+                      className={fieldClass}
+                      placeholder="e.g. 5:30 PM"
+                    />
+                  )}
+                <span className="mt-1.5 block text-xs font-normal normal-case tracking-normal text-[#6B4A55]/75">
+                  Leave default for 5pm prompt time, or set 6pm for guests who should arrive at nikah.
+                </span>
+              </label>
+            )}
+
             <fieldset className="sm:col-span-2">
               <legend className="text-xs font-semibold uppercase tracking-[0.14em] text-[#6B4A55]">
                 Show RSVP buttons on invite
@@ -602,6 +765,125 @@ export function AdminPage() {
         {message && <p className="mt-3 text-sm text-[#1F4B3F]">{message}</p>}
         {error && <p className="mt-3 text-sm text-[#8B2E3C]">{error}</p>}
 
+        <section className="mt-6 border border-[#3D2430]/10 bg-white/35 p-4 sm:p-5">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#6B4A55]">
+            Assign arrival times
+          </p>
+          <p className="mt-1 text-xs text-[#6B4A55]/75">
+            Select guests below, set one time for the selection and another for everyone else.
+            Saved times show on each person&apos;s live invite link.
+          </p>
+
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            <label className="block text-xs font-semibold uppercase tracking-[0.14em] text-[#6B4A55]">
+              Event
+              <select
+                value={bulkEvent}
+                onChange={(e) => setBulkEvent(e.target.value as EventKey)}
+                className={fieldClass}
+              >
+                <option value="baraat">Baraat</option>
+                <option value="walima">Walima</option>
+              </select>
+            </label>
+            <div className="flex flex-wrap items-end gap-2">
+              <button
+                type="button"
+                onClick={selectAllFiltered}
+                className="border border-[#3D2430]/20 bg-white/60 px-3 py-2.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#3D2430]"
+              >
+                Select all listed
+              </button>
+              <button
+                type="button"
+                onClick={clearSelection}
+                className="border border-[#3D2430]/20 bg-white/60 px-3 py-2.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#3D2430]"
+              >
+                Clear selection
+              </button>
+            </div>
+
+            <label className="block text-xs font-semibold uppercase tracking-[0.14em] text-[#6B4A55]">
+              Time for selected ({selectedSlugs.size})
+              <select
+                value={bulkTimeSelected}
+                onChange={(e) => setBulkTimeSelected(e.target.value)}
+                className={fieldClass}
+              >
+                {TIME_PRESETS.map((t) => (
+                  <option key={t} value={t}>
+                    {shortTime(t)}
+                  </option>
+                ))}
+                <option value="__custom__">Custom…</option>
+                <option value="__clear__">Use event default</option>
+              </select>
+              {bulkTimeSelected === '__custom__' && (
+                <input
+                  type="text"
+                  value={bulkCustomSelected}
+                  onChange={(e) => setBulkCustomSelected(e.target.value)}
+                  className={fieldClass}
+                  placeholder="e.g. 5:30 PM"
+                />
+              )}
+            </label>
+
+            <label className="block text-xs font-semibold uppercase tracking-[0.14em] text-[#6B4A55]">
+              Time for everyone else
+              <select
+                value={bulkTimeOthers}
+                onChange={(e) => setBulkTimeOthers(e.target.value)}
+                className={fieldClass}
+              >
+                {TIME_PRESETS.map((t) => (
+                  <option key={t} value={t}>
+                    {shortTime(t)}
+                  </option>
+                ))}
+                <option value="__custom__">Custom…</option>
+                <option value="__clear__">Use event default</option>
+              </select>
+              {bulkTimeOthers === '__custom__' && (
+                <input
+                  type="text"
+                  value={bulkCustomOthers}
+                  onChange={(e) => setBulkCustomOthers(e.target.value)}
+                  className={fieldClass}
+                  placeholder="e.g. 6:00 PM"
+                />
+              )}
+            </label>
+          </div>
+
+          <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+            <button
+              type="button"
+              disabled={busy || selectedSlugs.size === 0}
+              onClick={() => void applyTimesToGuests('selected')}
+              className="inline-flex items-center justify-center gap-2 bg-[#3D2430] px-4 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-[#FBF7F2] disabled:opacity-60"
+            >
+              Apply to selected
+            </button>
+            <button
+              type="button"
+              disabled={busy || selectedSlugs.size === 0}
+              onClick={() => void applyTimesToGuests('others')}
+              className="inline-flex items-center justify-center gap-2 border border-[#3D2430]/20 bg-white/60 px-4 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-[#3D2430] disabled:opacity-60"
+            >
+              Apply to others only
+            </button>
+            <button
+              type="button"
+              disabled={busy || selectedSlugs.size === 0}
+              onClick={() => void applyTimesToGuests('both')}
+              className="inline-flex items-center justify-center gap-2 border border-[#6B3A4A]/35 bg-[#6B3A4A]/10 px-4 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-[#3D2430] disabled:opacity-60"
+            >
+              Apply both (selected + others)
+            </button>
+          </div>
+        </section>
+
         <div className="mt-6">
           <input
             type="search"
@@ -624,20 +906,37 @@ export function AdminPage() {
             filtered.map((g) => (
               <li
                 key={g.slug}
-                className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between"
+                className={`flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between ${
+                  selectedSlugs.has(g.slug) ? 'bg-[#6B3A4A]/06' : ''
+                }`}
               >
-                <div className="min-w-0">
-                  <p className="truncate text-base text-[#3D2430]">
-                    {g.honorific ? `${g.honorific} ` : ''}
-                    {g.full_name}
-                  </p>
-                  <p className="mt-0.5 text-xs text-[#6B4A55]/80">
-                    {eventLabel(g.events)} · {rsvpSidesLabel(g)}
-                    {g.phone ? ` · ${g.phone}` : ' · no phone'}
-                    {' · '}/i/{g.slug}
-                  </p>
+                <div className="flex min-w-0 items-start gap-3">
+                  <input
+                    type="checkbox"
+                    checked={selectedSlugs.has(g.slug)}
+                    onChange={() => toggleSelected(g.slug)}
+                    className="mt-1 h-4 w-4 shrink-0 accent-[#6B3A4A]"
+                    aria-label={`Select ${g.full_name}`}
+                  />
+                  <div className="min-w-0">
+                    <p className="truncate text-base text-[#3D2430]">
+                      {g.honorific ? `${g.honorific} ` : ''}
+                      {g.full_name}
+                    </p>
+                    <p className="mt-0.5 text-xs text-[#6B4A55]/80">
+                      {eventLabel(g.events)} · {rsvpSidesLabel(g)}
+                      {g.events.includes('baraat')
+                        ? ` · Baraat ${shortTime(getGuestEventTime(g, 'baraat'))}`
+                        : ''}
+                      {g.events.includes('walima')
+                        ? ` · Walima ${shortTime(getGuestEventTime(g, 'walima'))}`
+                        : ''}
+                      {g.phone ? ` · ${g.phone}` : ' · no phone'}
+                      {' · '}/i/{g.slug}
+                    </p>
+                  </div>
                 </div>
-                <div className="flex shrink-0 flex-wrap gap-2">
+                <div className="flex shrink-0 flex-wrap gap-2 pl-7 sm:pl-0">
                   <button
                     type="button"
                     onClick={() => void copyLink(g.slug)}

@@ -9,8 +9,68 @@ export function normalizeEvents(events: EventKey[]): EventKey[] {
   return ordered;
 }
 
+/** Normalize stored time strings to the card format, e.g. "5:00 PM Onwards". */
+export function normalizeEventTime(raw: string): string {
+  const cleaned = raw.trim().replace(/\s+/g, ' ');
+  if (!cleaned) return cleaned;
+  const withoutOnwards = cleaned.replace(/\s*onwards\s*$/i, '').trim();
+  // Accept "5pm", "5 PM", "5:00pm", "17:00"
+  const match = withoutOnwards.match(/^(\d{1,2})(?::(\d{2}))?\s*(am|pm)?$/i);
+  if (match) {
+    let hour = Number(match[1]);
+    const minute = match[2] ?? '00';
+    let meridiem = (match[3] || '').toUpperCase();
+    if (!meridiem) {
+      // 24h clock → 12h
+      if (hour === 0) {
+        hour = 12;
+        meridiem = 'AM';
+      } else if (hour === 12) {
+        meridiem = 'PM';
+      } else if (hour > 12) {
+        hour -= 12;
+        meridiem = 'PM';
+      } else {
+        meridiem = 'AM';
+      }
+    } else if (hour === 0) {
+      hour = 12;
+    }
+    return `${hour}:${minute} ${meridiem} Onwards`;
+  }
+  if (/onwards$/i.test(cleaned)) return cleaned.replace(/\s*onwards$/i, ' Onwards');
+  return `${withoutOnwards} Onwards`;
+}
+
 export function resolveGuestEvents(guest: Guest): WeddingEvent[] {
-  return normalizeEvents(guest.events).map((key) => EVENTS_BY_KEY[key]);
+  return normalizeEvents(guest.events).map((key) => {
+    const base = EVENTS_BY_KEY[key];
+    const override = guest.event_times?.[key]?.trim();
+    if (!override) return base;
+    return { ...base, event_time: normalizeEventTime(override) };
+  });
+}
+
+/** Effective time shown on a guest's invite for one event. */
+export function getGuestEventTime(guest: Guest, key: EventKey): string {
+  const override = guest.event_times?.[key]?.trim();
+  if (override) return normalizeEventTime(override);
+  return EVENTS_BY_KEY[key].event_time;
+}
+
+export function withEventTime(
+  guest: Guest,
+  key: EventKey,
+  time: string | null,
+): Guest {
+  const nextTimes = { ...(guest.event_times || {}) };
+  if (!time?.trim()) {
+    delete nextTimes[key];
+  } else {
+    nextTimes[key] = normalizeEventTime(time);
+  }
+  const event_times = Object.keys(nextTimes).length ? nextTimes : undefined;
+  return { ...guest, event_times };
 }
 
 export function isBothEvents(guest: Guest): boolean {

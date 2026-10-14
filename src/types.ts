@@ -28,6 +28,11 @@ export interface Guest {
   phone?: string;
   /** Which RSVP buttons this guest sees (bride and/or groom) */
   rsvp_sides?: RsvpSide[];
+  /**
+   * Per-event time overrides shown on this guest's invite.
+   * Example: `{ baraat: '5:00 PM Onwards' }` — omits use the event default.
+   */
+  event_times?: Partial<Record<EventKey, string>>;
   viewed: boolean;
   custom_message?: string;
 }

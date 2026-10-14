@@ -8,6 +8,8 @@ interface Guest {
   honorific?: string;
   events: EventKey[];
   phone?: string;
+  /** Per-event time overrides, e.g. { baraat: '6:00 PM Onwards' } */
+  event_times?: Partial<Record<EventKey, string>>;
   viewed: boolean;
   custom_message?: string;
 }
